@@ -1,5 +1,4 @@
 use ndarray::{Array1, Array2, Axis};
-use ndarray_rand::rand_distr::num_traits::Zero;
 
 use super::layer::Layer;
 
@@ -45,5 +44,37 @@ impl Layer for Sum {
                 .unwrap()
                 .to_owned(),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use ndarray::array;
+
+    use super::*;
+
+    #[test]
+    fn test_sum_layer() {
+        // test forward
+        let mut sum = Sum::new();
+        let input = InputOfSumLayer {
+            input: array![[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]],
+        };
+        let output = sum.forward(input);
+        assert_eq!(output.out, array![12., 15., 18.]);
+
+        // test backward
+        let dout = OutputOfSumLayer {
+            out: array![10., 11., 12.],
+        };
+        let dinput = sum.backward(dout);
+        assert_eq!(
+            dinput.dinput,
+            array![
+                [10., 11., 12.],
+                [10., 11., 12.],
+                [10., 11., 12.]
+            ]
+        );
     }
 }
