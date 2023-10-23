@@ -23,26 +23,26 @@ struct OutputOfSigmoidLayer {
     out: Array2<f64>,
 }
 
-impl<_T> Layer<_T> for Sigmoid {
-    type Input<_U> = InputOfSigmoidLayer;
-    type Output<_V> = OutputOfSigmoidLayer;
-    type DInput<_W> = DInputOfSigmoidLayer;
+impl Layer for Sigmoid {
+    type Input = InputOfSigmoidLayer;
+    type Output = OutputOfSigmoidLayer;
+    type DInput = DInputOfSigmoidLayer;
     fn new() -> Self {
         Self { out: None }
     }
 
-    fn forward(&mut self, input: Self::Input<_T>) -> Self::Output<_T> {
-        let Self::Input::<_T> { input } = input;
+    fn forward(&mut self, input: Self::Input) -> Self::Output {
+        let Self::Input { input } = input;
         let out = input.mapv_into(|x| 1. / (1. + (-x).exp()));
         self.out = Some(out.clone());
-        Self::Output::<_T> { out }
+        Self::Output { out }
     }
 
-    fn backward(&self, dout: Self::Output<_T>) -> Self::DInput<_T> {
+    fn backward(&self, dout: Self::Output) -> Self::DInput {
         assert!(self.out.is_some());
-        let Self::Output::<_T> { out } = dout;
+        let Self::Output { out } = dout;
 
         let dinput = out.clone() * (1.0 - out) * self.out.as_ref().unwrap();
-        Self::DInput::<_T> { dinput }
+        Self::DInput { dinput }
     }
 }

@@ -7,26 +7,24 @@ struct Repeat {
     n: Option<usize>,
 }
 
-struct InputOfRepeatLayer<T> {
-    input: Array1<T>,
+struct InputOfRepeatLayer {
+    input: Array1<f64>,
     n: usize,
 }
 
-struct DInputOfRepeatLayer<T> {
-    dinput: Array1<T>,
+struct DInputOfRepeatLayer {
+    dinput: Array1<f64>,
 }
 
-struct OutputOfRepeatLayer<T> {
-    out: Array2<T>,
+struct OutputOfRepeatLayer {
+    out: Array2<f64>,
 }
 
-impl<T> Layer<T> for Repeat
-where
-    T: std::ops::Add<Output = T> + Clone + Zero,
+impl Layer for Repeat
 {
-    type Input<U> = InputOfRepeatLayer<U>;
-    type Output<U> = OutputOfRepeatLayer<U>;
-    type DInput<U> = DInputOfRepeatLayer<U>;
+    type Input = InputOfRepeatLayer;
+    type Output = OutputOfRepeatLayer;
+    type DInput = DInputOfRepeatLayer;
 
     fn new() -> Self {
         Self {
@@ -34,9 +32,7 @@ where
         }
     }
 
-    fn forward(&mut self, input: Self::Input<T>) -> Self::Output<T>
-    where
-        T: std::ops::Add<Output = T>,
+    fn forward(&mut self, input: Self::Input) -> Self::Output
     {
         let Self::Input { input, n } = input;
         self.n = Some(n);
@@ -45,7 +41,7 @@ where
         }
     }
 
-    fn backward(&self, dout: Self::Output<T>) -> Self::DInput<T> {
+    fn backward(&self, dout: Self::Output) -> Self::DInput {
         assert!(self.n.is_some());
         Self::DInput {
             dinput: dout.out.sum_axis(Axis(0)).to_owned(),

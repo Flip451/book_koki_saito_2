@@ -1,9 +1,9 @@
-pub(super)trait Layer<T> {
-    type Input<U>;
-    type Output<V>;
-    type DInput<W>;
+pub(super)trait Layer {
+    type Input;
+    type Output;
+    type DInput;
 
     fn new() -> Self;
-    fn forward(&mut self, input: Self::Input<T>) -> Self::Output<T>;
-    fn backward(&self, dout: Self::Output<T>) -> Self::DInput<T>;
+    fn forward(&mut self, input: Self::Input) -> Self::Output;
+    fn backward(&self, dout: Self::Output) -> Self::DInput;
 }

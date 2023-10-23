@@ -1,35 +1,33 @@
+use ndarray::Array2;
+
 use super::layer::Layer;
 
 struct Branch {}
 
-struct InputOfBranchLayer<T> {
-    input: T
+struct InputOfBranchLayer {
+    input: Array2<f64>,
 }
 
-struct DInputOfBranchLayer<T> {
-    dinput: T
+struct DInputOfBranchLayer {
+    dinput: Array2<f64>
 }
 
-struct OutputOfBranchLayer<T> {
-    a: T,
-    b: T,
+struct OutputOfBranchLayer {
+    a: Array2<f64>,
+    b: Array2<f64>,
 }
 
-impl<T> Layer<T> for Branch
-where
-    T: std::ops::Add<Output = T> + Clone,
+impl Layer for Branch
 {
-    type Input<U> = InputOfBranchLayer<U>;
-    type Output<U> = OutputOfBranchLayer<U>;
-    type DInput<U> = DInputOfBranchLayer<U>;
+    type Input = InputOfBranchLayer;
+    type Output = OutputOfBranchLayer;
+    type DInput = DInputOfBranchLayer;
 
     fn new() -> Self {
         Self {}
     }
 
-    fn forward(&mut self, input: Self::Input<T>) -> Self::Output<T>
-    where
-        T: std::ops::Add<Output = T>,
+    fn forward(&mut self, input: Self::Input) -> Self::Output
     {
         Self::Output {
             a: input.input.clone(),
@@ -37,7 +35,7 @@ where
         }
     }
 
-    fn backward(&self, dout: Self::Output<T>) -> Self::DInput<T> {
+    fn backward(&self, dout: Self::Output) -> Self::DInput {
         Self::DInput {
             dinput: dout.a + dout.b,
         }
