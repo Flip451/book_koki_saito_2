@@ -1,5 +1,5 @@
 /*
-    output = X.dot(A)
+    Y = X.dot(A)
     ∂L/∂X = ∂L/∂Y.dot(A^T)
     ∂L/∂A = X^T.dot(∂L/∂Y)
 */
