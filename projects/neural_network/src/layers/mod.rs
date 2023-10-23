@@ -9,3 +9,4 @@ mod sum;
 mod matrix_multiply;
 
 mod sigmoid;
+mod affine;
