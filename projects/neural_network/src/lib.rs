@@ -1,3 +1,4 @@
 pub mod dataset;
-mod layers;
-mod optimizer;
+pub(crate) mod layers;
+pub mod network;
+pub mod optimizer;
