@@ -27,14 +27,39 @@ pub(crate) struct InputOfSoftmaxCrossEntropyLayer {
     t: Array2<f64>,
 }
 
-struct DInputOfSoftmaxCrossEntropyLayer {
+impl InputOfSoftmaxCrossEntropyLayer {
+    pub(crate) fn from(input: Array2<f64>, one_hot_labels: Array2<f64>) -> Self {
+        Self {
+            input,
+            t: one_hot_labels,
+        }
+    }
+}
+
 pub(crate) struct DInputOfSoftmaxCrossEntropyLayer {
     dinput: Array2<f64>,
 }
 
-struct OutputOfSoftmaxCrossEntropyLayer {
+impl Into<Array2<f64>> for DInputOfSoftmaxCrossEntropyLayer {
+    fn into(self) -> Array2<f64> {
+        self.dinput
+    }
+}
+
 pub(crate) struct OutputOfSoftmaxCrossEntropyLayer {
     out: f64,
+}
+
+impl Into<f64> for OutputOfSoftmaxCrossEntropyLayer {
+    fn into(self) -> f64 {
+        self.out
+    }
+}
+
+impl From<f64> for OutputOfSoftmaxCrossEntropyLayer {
+    fn from(out: f64) -> Self {
+        Self { out }
+    }
 }
 
 const TINY_DELTA: f64 = 0.00_000_000_01;

@@ -30,6 +30,18 @@ pub(crate) struct OutputOfAffineLayer {
     out: Array2<f64>,
 }
 
+impl Into<Array2<f64>> for OutputOfAffineLayer {
+    fn into(self) -> Array2<f64> {
+        self.out
+    }
+}
+
+impl From<Array2<f64>> for OutputOfAffineLayer {
+    fn from(value: Array2<f64>) -> Self {
+        Self { out: value }
+    }
+}
+
 impl Layer for Affine {
     type Input = InputOfAffineLayer;
     type Output = OutputOfAffineLayer;
