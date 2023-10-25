@@ -7,19 +7,21 @@ use ndarray::Array2;
 
 use super::layer::Layer;
 
-struct Sigmoid {
+pub(crate) struct Sigmoid {
     out: Option<Array2<f64>>,
 }
 
-struct InputOfSigmoidLayer {
+pub(crate) struct InputOfSigmoidLayer {
     input: Array2<f64>,
 }
 
 struct DInputOfSigmoidLayer {
+pub(crate) struct DInputOfSigmoidLayer {
     dinput: Array2<f64>,
 }
 
 struct OutputOfSigmoidLayer {
+pub(crate) struct OutputOfSigmoidLayer {
     out: Array2<f64>,
 }
 

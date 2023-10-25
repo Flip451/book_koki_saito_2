@@ -17,21 +17,23 @@ use ndarray::{Array1, Array2, ArrayView1};
 
 use super::layer::Layer;
 
-struct SoftmaxCrossEntropy {
+pub(crate) struct SoftmaxCrossEntropy {
     y: Option<Array2<f64>>,
     t: Option<Array2<f64>>,
 }
 
-struct InputOfSoftmaxCrossEntropyLayer {
+pub(crate) struct InputOfSoftmaxCrossEntropyLayer {
     input: Array2<f64>,
     t: Array2<f64>,
 }
 
 struct DInputOfSoftmaxCrossEntropyLayer {
+pub(crate) struct DInputOfSoftmaxCrossEntropyLayer {
     dinput: Array2<f64>,
 }
 
 struct OutputOfSoftmaxCrossEntropyLayer {
+pub(crate) struct OutputOfSoftmaxCrossEntropyLayer {
     out: f64,
 }
 
@@ -93,9 +95,11 @@ impl Layer for SoftmaxCrossEntropy {
         let y = self.y.as_ref().unwrap();
         let t = self.t.as_ref().unwrap();
         assert_eq!(y.dim(), t.dim());
-        
+
         let batch_size = y.shape()[0] as f64;
-        Self::DInput { dinput: (y - t) / batch_size }
+        Self::DInput {
+            dinput: (y - t) / batch_size,
+        }
     }
 }
 
@@ -103,7 +107,7 @@ impl Layer for SoftmaxCrossEntropy {
 mod tests {
     use approx::assert_abs_diff_eq;
     use ndarray::{array, Array};
-    use ndarray_rand::{RandomExt, rand_distr::Normal};
+    use ndarray_rand::{rand_distr::Normal, RandomExt};
 
     use super::*;
 
@@ -152,9 +156,7 @@ mod tests {
             input: input.clone(),
             t: one_hots.clone(),
         });
-        let result = softmax_cross_entropy.backward(OutputOfSoftmaxCrossEntropyLayer {
-            out: 1.,
-        });
+        let result = softmax_cross_entropy.backward(OutputOfSoftmaxCrossEntropyLayer { out: 1. });
 
         // input の [i, j] 成分に関する微分を数値計算
         input.indexed_iter().for_each(|((i, j), input_ij)| {

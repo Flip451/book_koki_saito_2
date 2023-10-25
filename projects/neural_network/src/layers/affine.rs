@@ -9,24 +9,24 @@ use ndarray::{Array1, Array2, Axis};
 
 use super::layer::Layer;
 
-struct Affine {
+pub(crate) struct Affine {
     x: Option<Array2<f64>>,
     a: Option<Array2<f64>>,
 }
 
-struct InputOfAffineLayer {
-    x: Array2<f64>,
-    a: Array2<f64>,
-    b: Array1<f64>,
+pub(crate) struct InputOfAffineLayer {
+    pub(crate) x: Array2<f64>,
+    pub(crate) a: Array2<f64>,
+    pub(crate) b: Array1<f64>,
 }
 
-struct DInputOfAffineLayer {
-    dx: Array2<f64>,
-    da: Array2<f64>,
-    db: Array1<f64>,
+pub(crate) struct DInputOfAffineLayer {
+    pub(crate) dx: Array2<f64>,
+    pub(crate) da: Array2<f64>,
+    pub(crate) db: Array1<f64>,
 }
 
-struct OutputOfAffineLayer {
+pub(crate) struct OutputOfAffineLayer {
     out: Array2<f64>,
 }
 
@@ -71,20 +71,20 @@ mod tests {
     #[test]
     fn test_matrix_multiply_layer() {
         // test forward
-        let mut Affine = Affine::new();
+        let mut affine = Affine::new();
         let input = InputOfAffineLayer {
             x: array![[1., 2., 3.], [4., 5., 6.]],
             a: array![[1., 2.], [3., 4.], [5., 6.]],
             b: array![7., 8.],
         };
-        let output = Affine.forward(input);
+        let output = affine.forward(input);
         assert_eq!(output.out, array![[29., 36.], [56., 72.]]);
 
         // test backward
         let dout = OutputOfAffineLayer {
             out: array![[7., 8.], [9., 10.]],
         };
-        let dinput = Affine.backward(dout);
+        let dinput = affine.backward(dout);
 
         assert_eq!(dinput.dx, array![[23., 53., 83.], [29., 67., 105.]]);
         assert_eq!(dinput.da, array![[43., 48.], [59., 66.], [75., 84.]]);
