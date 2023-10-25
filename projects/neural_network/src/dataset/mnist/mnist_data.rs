@@ -3,6 +3,7 @@ use std::{fs::File, io::Read};
 use crate::dataset::mnist::mnist_image::MnistImage;
 
 pub struct MnistData {
+    pub class_number: usize,
     pub image_number: usize,
     pub image_height: usize,
     pub image_width: usize,
@@ -94,6 +95,7 @@ impl MnistData {
         assert_eq!(n, 0);
 
         Self {
+            class_number: images[0].one_hot_label.len(),
             image_number: number_of_images,
             image_width: number_of_rows,
             image_height: number_of_columns,
