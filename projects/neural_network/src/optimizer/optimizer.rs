@@ -1,4 +1,4 @@
-use ndarray::{ArrayView, ArrayViewMut, Dimension};
+use std::ops::{Mul, SubAssign};
 
 pub struct LearningRate(f64);
 
@@ -12,9 +12,10 @@ impl LearningRate {
     }
 }
 
-pub(super) trait Optimizer {
+pub trait Optimizer {
     fn new(lr: LearningRate) -> Self;
-    fn update<D>(self, params: Vec<ArrayViewMut<f64, D>>, grads: Vec<ArrayView<f64, D>>)
+    fn update<P, G>(&self, params: Vec<&mut P>, grads: Vec<&G>)
     where
-        D: Dimension;
+        P: SubAssign<G>,
+        G: Mul<f64, Output = G> + Clone;
 }

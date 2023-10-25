@@ -1,4 +1,4 @@
-pub(super)trait Layer {
+pub(crate)trait Layer {
     type Input;
     type Output;
     type DInput;

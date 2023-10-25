@@ -1,15 +1,15 @@
-mod layer;
+pub(crate) mod layer;
 
-mod add;
-mod branch;
+pub(crate) mod add;
+pub(crate) mod branch;
 
-mod repeat;
-mod sum;
+pub(crate) mod repeat;
+pub(crate) mod sum;
 
-mod matrix_multiply;
+pub(crate) mod matrix_multiply;
 
-mod sigmoid;
+pub(crate) mod sigmoid;
 
-mod affine;
+pub(crate) mod affine;
 
-mod softmax_cross_entropy;
+pub(crate) mod softmax_cross_entropy;

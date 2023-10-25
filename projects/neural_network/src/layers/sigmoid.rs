@@ -7,20 +7,44 @@ use ndarray::Array2;
 
 use super::layer::Layer;
 
-struct Sigmoid {
+pub(crate) struct Sigmoid {
     out: Option<Array2<f64>>,
 }
 
-struct InputOfSigmoidLayer {
+pub(crate) struct InputOfSigmoidLayer {
     input: Array2<f64>,
 }
 
-struct DInputOfSigmoidLayer {
+impl From<Array2<f64>> for InputOfSigmoidLayer {
+    fn from(value: Array2<f64>) -> Self {
+        Self { input: value }
+    }
+}
+
+pub(crate) struct DInputOfSigmoidLayer {
     dinput: Array2<f64>,
 }
 
-struct OutputOfSigmoidLayer {
+impl Into<Array2<f64>> for DInputOfSigmoidLayer {
+    fn into(self) -> Array2<f64> {
+        self.dinput
+    }
+}
+
+pub(crate) struct OutputOfSigmoidLayer {
     out: Array2<f64>,
+}
+
+impl From<Array2<f64>> for OutputOfSigmoidLayer {
+    fn from(value: Array2<f64>) -> Self {
+        Self { out: value }
+    }
+}
+
+impl Into<Array2<f64>> for OutputOfSigmoidLayer {
+    fn into(self) -> Array2<f64> {
+        self.out
+    }
 }
 
 impl Layer for Sigmoid {
