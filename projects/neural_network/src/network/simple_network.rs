@@ -4,6 +4,7 @@ use ndarray_rand::{rand_distr::Normal, RandomExt};
 use super::layers::{
     affine::{AffineLayer, ParamsOfAffineLayer},
     layer::{LayerBase, LossLayer, TransformLayer},
+    relu::{ReLULayer, ParamsOfReLULayer},
     sigmoid::{ParamsOfSigmoidLayer, SigmoidLayer},
     softmax_cross_entropy::{ParamsOfSoftmaxCrossEntropyLayer, SoftmaxCrossEntropyLayer},
 };
@@ -15,6 +16,7 @@ const STD_DEV_DISTR: f64 = 0.01;
 enum HiddenLayer {
     Affine(AffineLayer),
     Sigmoid(SigmoidLayer),
+    ReLU(ReLULayer),
 }
 
 pub struct SimpleNetwork {
@@ -40,8 +42,8 @@ impl SimpleNetwork {
                         b: bias,
                     })));
 
-                    layers.push(HiddenLayer::Sigmoid(SigmoidLayer::new(
-                        ParamsOfSigmoidLayer(),
+                    layers.push(HiddenLayer::ReLU(ReLULayer::new(
+                        ParamsOfReLULayer(),
                     )));
 
                     current_layer_size
@@ -71,6 +73,9 @@ impl SimpleNetwork {
                 HiddenLayer::Sigmoid(sigmoid_layer) => {
                     input = sigmoid_layer.forward(input);
                 }
+                HiddenLayer::ReLU(relu_layer) => {
+                    input = relu_layer.forward(input);
+                }
             }
         }
         input
@@ -92,12 +97,15 @@ impl SimpleNetwork {
                 HiddenLayer::Sigmoid(sigmoid_layer) => {
                     dout = sigmoid_layer.backward(dout);
                 }
+                HiddenLayer::ReLU(relu_layer) => {
+                    dout = relu_layer.backward(dout);
+                }
             }
         }
         dout
     }
 
-    fn params_and_grads(&mut self) -> Vec<(&mut ParamsOfAffineLayer, &ParamsOfAffineLayer)>  {
+    fn params_and_grads(&mut self) -> Vec<(&mut ParamsOfAffineLayer, &ParamsOfAffineLayer)> {
         let mut params_and_grads = vec![];
         for layer in &mut self.layers {
             match layer {
@@ -105,13 +113,13 @@ impl SimpleNetwork {
                     params_and_grads.push(affine_layer.params_and_grads());
                 }
                 HiddenLayer::Sigmoid(_) => {}
+                HiddenLayer::ReLU(_) => {}
             }
         }
         params_and_grads
     }
 
-    pub fn update(&mut self, optimizer: &dyn Optimizer)
-    {
+    pub fn update(&mut self, optimizer: &dyn Optimizer) {
         let params_and_grads = self.params_and_grads();
         for (params, grads) in params_and_grads {
             optimizer.update(params, grads);
@@ -120,5 +128,5 @@ impl SimpleNetwork {
 }
 
 pub trait Optimizer {
-    fn update(&self, params: &mut ParamsOfAffineLayer , grads: &ParamsOfAffineLayer);
+    fn update(&self, params: &mut ParamsOfAffineLayer, grads: &ParamsOfAffineLayer);
 }

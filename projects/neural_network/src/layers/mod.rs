@@ -9,6 +9,7 @@ pub(crate) mod sum;
 pub(crate) mod matrix_multiply;
 
 pub(crate) mod sigmoid;
+pub(crate) mod relu;
 
 pub(crate) mod affine;
 
