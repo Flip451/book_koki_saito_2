@@ -1,5 +1,5 @@
 use anyhow::Result;
-use neural_network::dataset::spiral::PointWithClass::{
+use neural_network::dataset::spiral::point_with_class::{
     ParamsForNewSeriesOfPointWithClass, SeriesOfPointWithClass,
 };
 use plotters::prelude::*;
@@ -17,6 +17,7 @@ fn main() -> Result<()> {
     let series_1 = series.get(0).unwrap();
     let series_2 = series.get(1).unwrap();
     let series_3 = series.get(2).unwrap();
+    // let series_4 = series.get(3).unwrap();
 
     let root = BitMapBackend::new(OUTPUT_FILE_NAME, (640, 480)).into_drawing_area();
     root.fill(&WHITE)?;
@@ -40,23 +41,35 @@ fn main() -> Result<()> {
         .draw()?;
 
     chart
-        .draw_series(series_1.iter().map(|point| Circle::new(*point, 5, &BLUE)))?
-        .label("class 1")
-        .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &BLUE));
+        .draw_series(series_1.iter().map(|point| Circle::new(*point, 5, ShapeStyle::from(&CYAN).filled())))?;
     chart
-        .draw_series(series_2.iter().map(|point| Circle::new(*point, 5, &RED)))?
-        .label("class 2")
-        .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &RED));
+        .draw_series(series_1.iter().map(|point| Circle::new(*point, 5, ShapeStyle::from(&BLACK))))?;
+        // .label("class 1")
+        // .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], ShapeStyle::from(&BLUE).filled()));
     chart
-        .draw_series(series_3.iter().map(|point| Circle::new(*point, 5, &GREEN)))?
-        .label("class 3")
-        .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], &GREEN));
+        .draw_series(series_2.iter().map(|point| Circle::new(*point, 5, ShapeStyle::from(&MAGENTA).filled())))?;
+    chart
+        .draw_series(series_2.iter().map(|point| Circle::new(*point, 5, ShapeStyle::from(&BLACK))))?;
+        // .label("class 2")
+        // .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], ShapeStyle::from(&RED).filled()));
+    chart
+        .draw_series(series_3.iter().map(|point| Circle::new(*point, 5, ShapeStyle::from(&YELLOW).filled())))?;
+    chart
+        .draw_series(series_3.iter().map(|point| Circle::new(*point, 5, ShapeStyle::from(&BLACK))))?;
+        // .label("class 3")
+        // .legend(|(x, y)| Circle::new((x + 10, y), 5, ShapeStyle::from(&GREEN).filled()));
+    // chart
+    //     .draw_series(series_4.iter().map(|point| Circle::new(*point, 5, ShapeStyle::from(&GREEN).filled())))?;
+    // chart
+    //     .draw_series(series_4.iter().map(|point| Circle::new(*point, 5, ShapeStyle::from(&BLACK))))?;
+    //     // .label("class 3")
+    //     // .legend(|(x, y)| Circle::new((x + 10, y), 5, ShapeStyle::from(&GREEN).filled()));
 
-    chart
-        .configure_series_labels()
-        .border_style(&BLACK)
-        .label_font(FontDesc::new(FontFamily::SansSerif, 32., FontStyle::Normal))
-        .draw()?;
+    // chart
+    //     .configure_series_labels()
+    //     .border_style(&BLACK)
+    //     .label_font(FontDesc::new(FontFamily::SansSerif, 32., FontStyle::Normal))
+    //     .draw()?;
 
     // To avoid the IO failure being ignored silently, we manually call the present function
     root.present().expect("Unable to write result to file, please make sure 'plotters-doc-data' dir exists under current dir");
