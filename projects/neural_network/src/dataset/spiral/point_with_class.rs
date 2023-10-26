@@ -57,7 +57,7 @@ impl SeriesOfPointWithClass {
                 let radius = (i as f64) / (point_per_class as f64);
                 let angle = (i as f64) / (point_per_class as f64) * max_angle
                     + (class as f64 / number_of_class as f64) * 2.0 * PI
-                    + rand::random::<f64>();
+                    + rand::random::<f64>()* 1.;
                 let x = radius * angle.cos();
                 let y = radius * angle.sin();
                 let point_with_class = PointWithClass::new(x, y, class);
