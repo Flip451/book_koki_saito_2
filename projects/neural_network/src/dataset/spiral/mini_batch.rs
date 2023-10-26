@@ -1,6 +1,6 @@
-use ndarray::{Array2, Array1, array};
+use ndarray::{Array1, Array2};
 
-use super::point_with_class::{SeriesOfPointWithClass, PointWithClass};
+use super::point_with_class::{PointWithClass, SeriesOfPointWithClass};
 
 pub struct MiniBatch {
     pub bundled_one_hot_labels: Array2<f64>,
@@ -9,21 +9,20 @@ pub struct MiniBatch {
 
 impl MiniBatch {
     fn from_points(points: &[PointWithClass]) -> Self {
-        let bundled_points: Vec<Array1<f64>> = points
-            .iter()
-            .map(|point| {
-                point.get_xy_array()
-            })
-            .collect();
+        let bundled_points: Vec<Array1<f64>> =
+            points.iter().map(|point| point.get_xy_array()).collect();
         let bundled_points = bundle_1d_arrays_into_2d_array(bundled_points);
-        
+
         let bundled_one_hot_labels: Vec<Array1<f64>> = points
             .iter()
             .map(|point| point.get_one_hot_label_array())
             .collect();
         let bundled_one_hot_labels = bundle_1d_arrays_into_2d_array(bundled_one_hot_labels);
 
-        Self { bundled_one_hot_labels, bundled_points }
+        Self {
+            bundled_one_hot_labels,
+            bundled_points,
+        }
     }
 }
 
@@ -46,6 +45,10 @@ impl MiniBatchGetter {
         self.points.shuffle();
         self.cursor = 0;
     }
+
+    pub fn whole_data(&self) -> MiniBatch {
+        MiniBatch::from_points(self.points.slice(0, self.points.total_len()))
+    }
 }
 
 impl Iterator for MiniBatchGetter {
@@ -63,7 +66,6 @@ impl Iterator for MiniBatchGetter {
         }
     }
 }
-
 
 fn bundle_1d_arrays_into_2d_array<T>(arrays: Vec<Array1<T>>) -> Array2<T>
 where
