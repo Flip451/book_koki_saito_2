@@ -62,6 +62,9 @@ fn main() {
             bundled_inputs,
         } = spiral_dataset.test_data();
 
+        // テストデータのデータ数の取得
+        let n = bundled_inputs.dim().0;
+
         // 予測の実行
         let predict = network.predict(bundled_inputs);
 
@@ -81,7 +84,7 @@ fn main() {
             .count();
 
         // 正解率の計算
-        let accuracy_rate = correct_number as f64 / (POINT_PER_CLASS * NUMBER_OF_CLASS) as f64;
+        let accuracy_rate = correct_number as f64 / n as f64;
 
         println!("epoch: {}, acc: {}", i, accuracy_rate);
     }

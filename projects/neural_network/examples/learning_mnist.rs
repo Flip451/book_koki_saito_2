@@ -1,7 +1,7 @@
 extern crate neural_network;
 
 use neural_network::{
-    dataset::mnist::{mini_batch::MiniBatch, mnist_data::MnistData},
+    dataset::{imp::mnist::{InitParamsOfMnistDataset, MnistDataset}, dataset::{MiniBatch, Dataset}},
     network::{network::Network, simple_network::SimpleNetwork},
     optimizer::{
         imp::sgd::{learning_rate::LearningRate, SGD},
@@ -16,54 +16,53 @@ const LEARNING_RATE: f64 = 0.001;
 
 fn main() {
     // 学習用データの読み込み
-    let training_data = MnistData::load(
-        "data/train-labels-idx1-ubyte",
-        "data/train-images-idx3-ubyte",
-    );
-    // テスト用データの読み込み
-    let test_data = MnistData::load("data/t10k-labels-idx1-ubyte", "data/t10k-images-idx3-ubyte");
+    let params = InitParamsOfMnistDataset {
+        batch_size: BATCH_SIZE,
+        train_image_file_path: "data/train-images-idx3-ubyte",
+        train_label_file_path: "data/train-labels-idx1-ubyte",
+        test_image_file_path: "data/t10k-images-idx3-ubyte",
+        test_label_file_path: "data/t10k-labels-idx1-ubyte",
+    };
+    let mut mnist_dataset = MnistDataset::new(params);
 
-    // 画像サイズの取得
-    let (image_hight, image_width) = (training_data.image_height, training_data.image_width);
     // 入力サイズの取得
-    let input_size = image_hight * image_width;
+    let input_size = 28 * 28;
     // 分類数（＝出力数）の取得
-    let output_size = training_data.class_number;
+    let output_size = 10;
 
     // ニューラルネットワークの初期化
     let mut network = SimpleNetwork::new(input_size, HIDDNE_SIZES.to_vec(), output_size);
 
-    // 学習率の設定
-    let lr = LearningRate::new(LEARNING_RATE);
     // 最適化手法の設定（確率的勾配降下法）
+    let lr = LearningRate::new(LEARNING_RATE);
     let optimizer = SGD::new(lr);
 
-    let epoch_size = training_data.image_number / BATCH_SIZE;
     for i in 0..MAX_EPOCH {
-        for _ in 0..epoch_size {
-            let MiniBatch {
-                bundled_images,
-                bundled_one_hot_labels,
-            } = MiniBatch::random_choice(&training_data, BATCH_SIZE);
+        mnist_dataset.shuffle_and_reset_cursor();
 
-            network.forward(bundled_images, bundled_one_hot_labels);
-
+        for MiniBatch {
+            bundled_inputs,
+            bundled_one_hot_labels,
+        } in &mut mnist_dataset
+        {
+            network.forward(bundled_inputs, bundled_one_hot_labels);
             network.backward(1.);
             network.update(&optimizer);
         }
+
         // 全データでの評価
         let MiniBatch {
-            bundled_images,
             bundled_one_hot_labels,
-        } = MiniBatch::random_choice(&training_data, training_data.image_number);
-        let loss = network.forward(bundled_images, bundled_one_hot_labels);
+            bundled_inputs,
+        } = mnist_dataset.test_data();
+
+        // テストデータのデータ数の取得
+        let n = bundled_inputs.dim().0;
 
         // テストデータでの評価
-        let MiniBatch {
-            bundled_images,
-            bundled_one_hot_labels,
-        } = MiniBatch::random_choice(&test_data, test_data.image_number);
-        let predict = network.predict(bundled_images);
+        let predict = network.predict(bundled_inputs);
+
+        // 正解数の計算
         let correct_number = predict
             .outer_iter()
             .zip(bundled_one_hot_labels.outer_iter())
@@ -77,11 +76,8 @@ fn main() {
                 one_hot_label[predict] == 1.
             })
             .count();
-        let accuracy_rate = correct_number as f64 / test_data.image_number as f64;
+        let accuracy_rate = correct_number as f64 / n as f64;
 
-        println!(
-            "epoch: {}, acc_test: {}, loss_test: {}",
-            i, accuracy_rate, loss
-        );
+        println!("epoch: {}, acc: {}", i, accuracy_rate);
     }
 }
