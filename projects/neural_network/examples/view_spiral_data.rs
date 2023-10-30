@@ -1,25 +1,24 @@
 use anyhow::Result;
-use neural_network::dataset::imp::spiral::SpiralDataset;
+use neural_network::dataset::imp::spiral::{InitParamsOfSpiralDataset, SpiralDataset};
 use plotters::prelude::*;
 
 const OUTPUT_FILE_NAME: &str = "view_spiral_data.png";
 
 fn main() -> Result<()> {
-    let spiral_dataset = SpiralDataset::new(100, 3, 100, 2.0 * std::f64::consts::PI);
+    let params = InitParamsOfSpiralDataset {
+        point_per_class: 100,
+        number_of_class: 3,
+        max_angle: 2.0 * std::f64::consts::PI,
+        batch_size: 30,
+    };
+    let spiral_dataset = SpiralDataset::new(params);
 
     let series = spiral_dataset.get_points();
 
-    // let props = ParamsForNewSeriesOfPointWithClass {
-    //     point_per_class: 100,
-    //     number_of_class: 3,
-    //     max_angle: 2.0 * std::f64::consts::PI,
-    // };
-    // let points = SeriesOfPointWithClass::new(props);
-    // let series = points.get_points();
     let series_1 = series.get(&0).unwrap();
     let series_2 = series.get(&1).unwrap();
     let series_3 = series.get(&2).unwrap();
-    // let series_4 = series.get(3).unwrap();
+    // let series_4 = series.get(&3).unwrap();
 
     let root = BitMapBackend::new(OUTPUT_FILE_NAME, (640, 480)).into_drawing_area();
     root.fill(&WHITE)?;

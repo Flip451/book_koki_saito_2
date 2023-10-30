@@ -9,7 +9,7 @@ use neural_network::{
     optimizer::{
         imp::sgd::{learning_rate::LearningRate, SGD},
         optimizer::Optimizer,
-    }, dataset::{imp::spiral::SpiralDataset, dataset::{Dataset, MiniBatch}},
+    }, dataset::{imp::spiral::{SpiralDataset, InitParamsOfSpiralDataset}, dataset::{Dataset, MiniBatch}},
 };
 
 const BATCH_SIZE: usize = 30;
@@ -19,14 +19,13 @@ const LEARNING_RATE: f64 = 1.;
 
 fn main() {
     // 学習用データの作成
-    // let config = ParamsForNewSeriesOfPointWithClass {
-    //     point_per_class: 100,
-    //     number_of_class: 3,
-    //     max_angle: 1.5 * std::f64::consts::PI,
-    // };
-    // let training_data = SeriesOfPointWithClass::new(config);
-    // let mut minibatch_getter = MiniBatchGetter::new(training_data, BATCH_SIZE);
-    let mut spiral_dataset = SpiralDataset::new(BATCH_SIZE, 3, 100, 1.5 * std::f64::consts::PI);
+    let config = InitParamsOfSpiralDataset {
+        point_per_class: 100,
+        number_of_class: 3,
+        max_angle: 1.5 * std::f64::consts::PI,
+        batch_size: 20,
+    };
+    let mut spiral_dataset = SpiralDataset::new(config);
 
     // 入力サイズの取得
     let input_size = 2;

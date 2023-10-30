@@ -1,6 +1,6 @@
 mod point_with_class;
 
-use std::{f64::consts::PI, collections::HashMap};
+use std::{collections::HashMap, f64::consts::PI};
 
 use rand::seq::SliceRandom;
 
@@ -14,13 +14,22 @@ pub struct SpiralDataset {
     batch_size: usize,
 }
 
+pub struct InitParamsOfSpiralDataset {
+    pub batch_size: usize,
+    pub number_of_class: usize,
+    pub point_per_class: usize,
+    pub max_angle: f64,
+}
+
 impl SpiralDataset {
-    pub fn new(
-        batch_size: usize,
-        number_of_class: usize,
-        point_per_class: usize,
-        max_angle: f64,
-    ) -> Self {
+    pub fn new(params: InitParamsOfSpiralDataset) -> Self {
+        let InitParamsOfSpiralDataset {
+            batch_size,
+            number_of_class,
+            point_per_class,
+            max_angle,
+        } = params;
+
         let mut points = Vec::with_capacity(number_of_class * point_per_class);
 
         for class in 0..number_of_class {
@@ -73,9 +82,8 @@ impl Iterator for SpiralDataset {
         if rest < self.batch_size {
             None
         } else {
-            let mini_batch = MiniBatch::from_points(
-                &self.points[self.cursor..(self.cursor + self.batch_size)],
-            );
+            let mini_batch =
+                MiniBatch::from_points(&self.points[self.cursor..(self.cursor + self.batch_size)]);
             self.cursor += self.batch_size;
             Some(mini_batch)
         }
