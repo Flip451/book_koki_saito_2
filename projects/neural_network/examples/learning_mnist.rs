@@ -2,8 +2,11 @@ extern crate neural_network;
 
 use neural_network::{
     dataset::mnist::{mini_batch::MiniBatch, mnist_data::MnistData},
-    network::simple_network::SimpleNetwork,
-    optimizer::{learning_rate::LearningRate, sgd::SGD},
+    network::{network::Network, simple_network::SimpleNetwork},
+    optimizer::{
+        imp::sgd::{learning_rate::LearningRate, SGD},
+        optimizer::Optimizer,
+    },
 };
 
 const BATCH_SIZE: usize = 100;
@@ -28,11 +31,7 @@ fn main() {
     let output_size = training_data.class_number;
 
     // ニューラルネットワークの初期化
-    let mut network = SimpleNetwork::new(
-        input_size,
-        HIDDNE_SIZES.to_vec(),
-        output_size,
-    );
+    let mut network = SimpleNetwork::new(input_size, HIDDNE_SIZES.to_vec(), output_size);
 
     // 学習率の設定
     let lr = LearningRate::new(LEARNING_RATE);
@@ -86,6 +85,9 @@ fn main() {
             .count();
         let accuracy_rate = correct_number as f64 / test_data.image_number as f64;
 
-        println!("epoch: {}, acc_test: {}, loss_test: {}", i, accuracy_rate, loss);
+        println!(
+            "epoch: {}, acc_test: {}, loss_test: {}",
+            i, accuracy_rate, loss
+        );
     }
 }

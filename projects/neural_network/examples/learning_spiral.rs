@@ -5,8 +5,11 @@ use neural_network::{
         mini_batch::{MiniBatch, MiniBatchGetter},
         point_with_class::{ParamsForNewSeriesOfPointWithClass, SeriesOfPointWithClass},
     },
-    network::simple_network::SimpleNetwork,
-    optimizer::{learning_rate::LearningRate, sgd::SGD},
+    network::{network::Network, simple_network::SimpleNetwork},
+    optimizer::{
+        imp::sgd::{learning_rate::LearningRate, SGD},
+        optimizer::Optimizer,
+    },
 };
 
 const BATCH_SIZE: usize = 30;
