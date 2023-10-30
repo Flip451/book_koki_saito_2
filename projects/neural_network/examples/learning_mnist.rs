@@ -3,7 +3,7 @@ extern crate neural_network;
 use neural_network::{
     dataset::mnist::{mini_batch::MiniBatch, mnist_data::MnistData},
     network::simple_network::SimpleNetwork,
-    optimizer::{optimizer::LearningRate, sgd::SGD},
+    optimizer::{learning_rate::LearningRate, sgd::SGD},
 };
 
 const BATCH_SIZE: usize = 100;

@@ -1,10 +1,12 @@
 use ndarray::{Array, Array2};
 use ndarray_rand::{rand_distr::Normal, RandomExt};
 
+use crate::optimizer::optimizer::Optimizer;
+
 use super::layers::{
     affine::{AffineLayer, ParamsOfAffineLayer},
     layer::{LayerBase, LossLayer, TransformLayer},
-    relu::{ReLULayer, ParamsOfReLULayer},
+    relu::{ParamsOfReLULayer, ReLULayer},
     sigmoid::{ParamsOfSigmoidLayer, SigmoidLayer},
     softmax_cross_entropy::{ParamsOfSoftmaxCrossEntropyLayer, SoftmaxCrossEntropyLayer},
 };
@@ -42,9 +44,7 @@ impl SimpleNetwork {
                         b: bias,
                     })));
 
-                    layers.push(HiddenLayer::ReLU(ReLULayer::new(
-                        ParamsOfReLULayer(),
-                    )));
+                    layers.push(HiddenLayer::ReLU(ReLULayer::new(ParamsOfReLULayer())));
 
                     current_layer_size
                 });
@@ -119,14 +119,10 @@ impl SimpleNetwork {
         params_and_grads
     }
 
-    pub fn update(&mut self, optimizer: &dyn Optimizer) {
+    pub fn update(&mut self, optimizer: &dyn Optimizer<ParamsOfAffineLayer, ParamsOfAffineLayer>) {
         let params_and_grads = self.params_and_grads();
         for (params, grads) in params_and_grads {
             optimizer.update(params, grads);
         }
     }
-}
-
-pub trait Optimizer {
-    fn update(&self, params: &mut ParamsOfAffineLayer, grads: &ParamsOfAffineLayer);
 }
