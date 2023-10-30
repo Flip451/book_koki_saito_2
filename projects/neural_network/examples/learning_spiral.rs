@@ -60,7 +60,7 @@ fn main() {
         let MiniBatch {
             bundled_one_hot_labels,
             bundled_inputs,
-        } = spiral_dataset.whole_data();
+        } = spiral_dataset.test_data();
 
         // 予測の実行
         let predict = network.predict(bundled_inputs);

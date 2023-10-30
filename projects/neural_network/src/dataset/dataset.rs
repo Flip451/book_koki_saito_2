@@ -2,7 +2,7 @@ use ndarray::Array2;
 
 pub trait Dataset: Iterator<Item = MiniBatch> {
     fn shuffle_and_reset_cursor(&mut self);
-    fn whole_data(&self) -> MiniBatch;
+    fn test_data(&self) -> MiniBatch;
 }
 
 pub struct MiniBatch {

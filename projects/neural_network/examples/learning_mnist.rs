@@ -72,15 +72,9 @@ fn main() {
                     .iter()
                     .enumerate()
                     .max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap())
-                    .unwrap()
-                    .0;
-                let one_hot_label = one_hot_label
-                    .iter()
-                    .enumerate()
-                    .max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap())
-                    .unwrap()
-                    .0;
-                predict == one_hot_label
+                    .map(|(index, _)| index)
+                    .unwrap();
+                one_hot_label[predict] == 1.
             })
             .count();
         let accuracy_rate = correct_number as f64 / test_data.image_number as f64;

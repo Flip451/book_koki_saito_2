@@ -68,7 +68,7 @@ impl Dataset for SpiralDataset {
         self.cursor = 0;
     }
 
-    fn whole_data(&self) -> MiniBatch {
+    fn test_data(&self) -> MiniBatch {
         MiniBatch::from_points(&self.points)
     }
 }
