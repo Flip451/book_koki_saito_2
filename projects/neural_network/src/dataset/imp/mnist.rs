@@ -51,7 +51,7 @@ impl Dataset for MnistDataset {
     }
 
     fn test_data(&self) -> MiniBatch {
-        todo!()
+        MiniBatch::from_images(&self.test_images)
     }
 }
 
