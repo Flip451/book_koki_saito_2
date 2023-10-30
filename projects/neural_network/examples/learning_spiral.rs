@@ -1,15 +1,15 @@
 extern crate neural_network;
 
 use neural_network::{
-    dataset::spiral::{
-        mini_batch::{MiniBatch, MiniBatchGetter},
-        point_with_class::{ParamsForNewSeriesOfPointWithClass, SeriesOfPointWithClass},
-    },
+    // dataset::spiral::{
+    //     mini_batch::{MiniBatch, MiniBatchGetter},
+    //     point_with_class::{ParamsForNewSeriesOfPointWithClass, SeriesOfPointWithClass},
+    // },
     network::{network::Network, simple_network::SimpleNetwork},
     optimizer::{
         imp::sgd::{learning_rate::LearningRate, SGD},
         optimizer::Optimizer,
-    },
+    }, dataset::{imp::spiral::SpiralDataset, dataset::{Dataset, MiniBatch}},
 };
 
 const BATCH_SIZE: usize = 30;
@@ -19,13 +19,14 @@ const LEARNING_RATE: f64 = 1.;
 
 fn main() {
     // 学習用データの作成
-    let config = ParamsForNewSeriesOfPointWithClass {
-        point_per_class: 100,
-        number_of_class: 3,
-        max_angle: 1.5 * std::f64::consts::PI,
-    };
-    let training_data = SeriesOfPointWithClass::new(config);
-    let mut minibatch_getter = MiniBatchGetter::new(training_data, BATCH_SIZE);
+    // let config = ParamsForNewSeriesOfPointWithClass {
+    //     point_per_class: 100,
+    //     number_of_class: 3,
+    //     max_angle: 1.5 * std::f64::consts::PI,
+    // };
+    // let training_data = SeriesOfPointWithClass::new(config);
+    // let mut minibatch_getter = MiniBatchGetter::new(training_data, BATCH_SIZE);
+    let mut spiral_dataset = SpiralDataset::new(BATCH_SIZE, 3, 100, 1.5 * std::f64::consts::PI);
 
     // 入力サイズの取得
     let input_size = 2;
@@ -41,26 +42,27 @@ fn main() {
     let optimizer = SGD::new(lr);
 
     for i in 0..MAX_EPOCH {
-        minibatch_getter.shuffle_and_reset_cursor();
+        spiral_dataset.shuffle_and_reset_cursor();
 
-        while let Some(MiniBatch {
-            bundled_points,
+        // 学習の実行
+        for MiniBatch {
+            bundled_inputs,
             bundled_one_hot_labels,
-        }) = minibatch_getter.next()
+        } in &mut spiral_dataset
         {
-            network.forward(bundled_points, bundled_one_hot_labels);
-
+            network.forward(bundled_inputs, bundled_one_hot_labels);
             network.backward(1.);
             network.update(&optimizer);
         }
+
         // 全データでの評価
         let MiniBatch {
             bundled_one_hot_labels,
-            bundled_points,
-        } = minibatch_getter.whole_data();
+            bundled_inputs,
+        } = spiral_dataset.whole_data();
 
         // 予測の実行
-        let predict = network.predict(bundled_points);
+        let predict = network.predict(bundled_inputs);
 
         // 正解数の計算
         let correct_number = predict
