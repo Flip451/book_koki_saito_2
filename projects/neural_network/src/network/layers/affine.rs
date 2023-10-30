@@ -1,4 +1,4 @@
-use std::ops::{Sub, Mul, SubAssign};
+use std::ops::{Add, Mul, Sub, SubAssign};
 
 use ndarray::{Array1, Array2};
 
@@ -19,6 +19,17 @@ pub(crate) struct AffineLayer {
 pub struct ParamsOfAffineLayer {
     pub(crate) w: Array2<f64>,
     pub(crate) b: Array1<f64>,
+}
+
+impl Add for ParamsOfAffineLayer {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        ParamsOfAffineLayer {
+            w: self.w + rhs.w,
+            b: self.b + rhs.b,
+        }
+    }
 }
 
 impl Sub for ParamsOfAffineLayer {

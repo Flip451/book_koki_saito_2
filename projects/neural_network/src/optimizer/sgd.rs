@@ -1,26 +1,11 @@
-use crate::network::{layers::affine::ParamsOfAffineLayer, simple_network::Optimizer};
+use std::ops::{Add, Mul};
 
-use super::optimizer::LearningRate;
+use super::optimizer::Optimizer;
+use super::learning_rate::LearningRate;
 
 pub struct SGD {
     lr: LearningRate,
 }
-
-// impl Optimizer for SGD {
-//     fn new(lr: LearningRate) -> Self {
-//         Self { lr }
-//     }
-
-//     fn update<P, G>(&self, params: Vec<&mut P>, grads: Vec<&G>)
-//     where
-//         P: SubAssign<G>,
-//         G: Mul<f64, Output = G> + Clone,
-//     {
-//         params.into_iter().zip(grads).for_each(|(param, grad)| {
-//             *param -= grad.clone() * self.lr.value();
-//         })
-//     }
-// }
 
 impl SGD {
     pub fn new(lr: LearningRate) -> Self {
@@ -28,9 +13,12 @@ impl SGD {
     }
 }
 
-impl Optimizer for SGD {
-
-    fn update(&self, params: &mut ParamsOfAffineLayer, grads: &ParamsOfAffineLayer) {
-        *params -= grads.clone() * self.lr.value();
+impl<P, G> Optimizer<P, G> for SGD
+where
+    P: Add<G, Output = P> + Clone,
+    G: Mul<f64, Output = G> + Clone,
+{
+    fn update(&self, params: &mut P, grads: &G) {
+        *params = params.clone() + grads.clone() * (-self.lr.value());
     }
 }

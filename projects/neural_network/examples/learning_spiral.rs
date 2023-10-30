@@ -6,7 +6,7 @@ use neural_network::{
         point_with_class::{ParamsForNewSeriesOfPointWithClass, SeriesOfPointWithClass},
     },
     network::simple_network::SimpleNetwork,
-    optimizer::{optimizer::LearningRate, sgd::SGD},
+    optimizer::{learning_rate::LearningRate, sgd::SGD},
 };
 
 const BATCH_SIZE: usize = 30;
