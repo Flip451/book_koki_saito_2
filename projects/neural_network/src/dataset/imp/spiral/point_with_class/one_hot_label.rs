@@ -1,5 +1,4 @@
 use ndarray::Array1;
-use ndarray_rand::rand_distr::num_traits::One;
 
 pub(super) struct OneHotLabel(Array1<f64>);
 
@@ -19,7 +18,7 @@ impl OneHotLabel {
         self.0
             .iter()
             .enumerate()
-            .find(|(_index, class)| class.is_one())
+            .find(|&(_index, &class)| class == 1.)
             .map(|(index, _)| index)
             .unwrap()
     }

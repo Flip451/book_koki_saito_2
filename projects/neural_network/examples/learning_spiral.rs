@@ -1,15 +1,15 @@
 extern crate neural_network;
 
 use neural_network::{
-    // dataset::spiral::{
-    //     mini_batch::{MiniBatch, MiniBatchGetter},
-    //     point_with_class::{ParamsForNewSeriesOfPointWithClass, SeriesOfPointWithClass},
-    // },
+    dataset::{
+        dataset::{Dataset, MiniBatch},
+        imp::spiral::{InitParamsOfSpiralDataset, SpiralDataset},
+    },
     network::{network::Network, simple_network::SimpleNetwork},
     optimizer::{
         imp::sgd::{learning_rate::LearningRate, SGD},
         optimizer::Optimizer,
-    }, dataset::{imp::spiral::{SpiralDataset, InitParamsOfSpiralDataset}, dataset::{Dataset, MiniBatch}},
+    },
 };
 
 const BATCH_SIZE: usize = 30;
@@ -19,25 +19,27 @@ const LEARNING_RATE: f64 = 1.;
 
 fn main() {
     // 学習用データの作成
+    const NUMBER_OF_CLASS: usize = 3;
+    const POINT_PER_CLASS: usize = 100;
     let config = InitParamsOfSpiralDataset {
-        point_per_class: 100,
-        number_of_class: 3,
+        point_per_class: POINT_PER_CLASS,
+        number_of_class: NUMBER_OF_CLASS,
         max_angle: 1.5 * std::f64::consts::PI,
-        batch_size: 20,
+        batch_size: BATCH_SIZE,
     };
     let mut spiral_dataset = SpiralDataset::new(config);
 
     // 入力サイズの取得
     let input_size = 2;
+
     // 分類数（＝出力数）の取得
     let output_size = 3;
 
     // ニューラルネットワークの初期化
     let mut network = SimpleNetwork::new(input_size, HIDDNE_SIZES.to_vec(), output_size);
 
-    // 学習率の設定
-    let lr = LearningRate::new(LEARNING_RATE);
     // 最適化手法の設定（確率的勾配降下法）
+    let lr = LearningRate::new(LEARNING_RATE);
     let optimizer = SGD::new(lr);
 
     for i in 0..MAX_EPOCH {
@@ -72,20 +74,14 @@ fn main() {
                     .iter()
                     .enumerate()
                     .max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap())
-                    .unwrap()
-                    .0;
-                let one_hot_label = one_hot_label
-                    .iter()
-                    .enumerate()
-                    .find(|&(_, &x)| 1. == x)
-                    .unwrap()
-                    .0;
-                predict == one_hot_label
+                    .map(|(index, _)| index)
+                    .unwrap();
+                one_hot_label[predict] == 1.
             })
             .count();
 
         // 正解率の計算
-        let accuracy_rate = correct_number as f64 / (300) as f64;
+        let accuracy_rate = correct_number as f64 / (POINT_PER_CLASS * NUMBER_OF_CLASS) as f64;
 
         println!("epoch: {}, acc: {}", i, accuracy_rate);
     }
