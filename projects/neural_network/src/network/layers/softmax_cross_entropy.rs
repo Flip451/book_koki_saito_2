@@ -1,5 +1,3 @@
-use std::ops::{Mul, Sub};
-
 use ndarray::Array2;
 
 use crate::layers::{
@@ -18,22 +16,6 @@ pub(crate) struct SoftmaxCrossEntropyLayer {
 }
 
 pub(crate) struct ParamsOfSoftmaxCrossEntropyLayer();
-
-impl Sub for ParamsOfSoftmaxCrossEntropyLayer {
-    type Output = ParamsOfSoftmaxCrossEntropyLayer;
-
-    fn sub(self, _: Self) -> Self::Output {
-        ParamsOfSoftmaxCrossEntropyLayer()
-    }
-}
-
-impl Mul<f32> for ParamsOfSoftmaxCrossEntropyLayer {
-    type Output = Self;
-
-    fn mul(self, _: f32) -> Self::Output {
-        ParamsOfSoftmaxCrossEntropyLayer()
-    }
-}
 
 impl LayerBase for SoftmaxCrossEntropyLayer {
     type Params = ParamsOfSoftmaxCrossEntropyLayer;

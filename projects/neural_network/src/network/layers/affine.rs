@@ -1,4 +1,4 @@
-use std::ops::{Add, Mul, Sub, SubAssign};
+use std::ops::{Add, Mul};
 
 use ndarray::{Array1, Array2};
 
@@ -29,24 +29,6 @@ impl Add for ParamsOfAffineLayer {
             w: self.w + rhs.w,
             b: self.b + rhs.b,
         }
-    }
-}
-
-impl Sub for ParamsOfAffineLayer {
-    type Output = ParamsOfAffineLayer;
-
-    fn sub(self, rhs: Self) -> Self::Output {
-        ParamsOfAffineLayer {
-            w: self.w - rhs.w,
-            b: self.b - rhs.b,
-        }
-    }
-}
-
-impl SubAssign for ParamsOfAffineLayer {
-    fn sub_assign(&mut self, rhs: Self) {
-        self.w = self.w.clone() - rhs.w;
-        self.b = self.b.clone() - rhs.b;
     }
 }
 

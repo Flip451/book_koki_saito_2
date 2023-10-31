@@ -1,5 +1,3 @@
-use std::ops::{Mul, Sub};
-
 use ndarray::Array2;
 
 use crate::layers::{
@@ -16,22 +14,6 @@ pub(crate) struct ReLULayer {
 }
 
 pub(crate) struct ParamsOfReLULayer();
-
-impl Sub for ParamsOfReLULayer {
-    type Output = ParamsOfReLULayer;
-
-    fn sub(self, _: Self) -> Self::Output {
-        ParamsOfReLULayer()
-    }
-}
-
-impl Mul<f32> for ParamsOfReLULayer {
-    type Output = Self;
-
-    fn mul(self, _: f32) -> Self::Output {
-        ParamsOfReLULayer()
-    }
-}
 
 impl LayerBase for ReLULayer {
     type Params = ParamsOfReLULayer;

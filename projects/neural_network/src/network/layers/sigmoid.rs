@@ -1,5 +1,3 @@
-use std::ops::{Mul, Sub};
-
 use ndarray::Array2;
 
 use crate::layers::{
@@ -16,22 +14,6 @@ pub(crate) struct SigmoidLayer {
 }
 
 pub(crate) struct ParamsOfSigmoidLayer();
-
-impl Sub for ParamsOfSigmoidLayer {
-    type Output = ParamsOfSigmoidLayer;
-
-    fn sub(self, _: Self) -> Self::Output {
-        ParamsOfSigmoidLayer()
-    }
-}
-
-impl Mul<f32> for ParamsOfSigmoidLayer {
-    type Output = Self;
-
-    fn mul(self, _: f32) -> Self::Output {
-        ParamsOfSigmoidLayer()
-    }
-}
 
 impl LayerBase for SigmoidLayer {
     type Params = ParamsOfSigmoidLayer;

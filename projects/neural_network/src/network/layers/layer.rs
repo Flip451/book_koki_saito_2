@@ -1,9 +1,7 @@
-use std::ops::{Sub, Mul};
-
 use ndarray::Array2;
 
 pub(crate) trait LayerBase {
-    type Params: Sub + Mul<f32, Output = Self::Params>;
+    type Params;
     fn new(params: Self::Params) -> Self;
     fn params_and_grads(&mut self) -> (&mut Self::Params, &Self::Params);
 }
