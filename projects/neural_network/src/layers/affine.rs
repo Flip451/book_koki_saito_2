@@ -10,34 +10,34 @@ use ndarray::{Array1, Array2, Axis};
 use super::layer::Layer;
 
 pub(crate) struct Affine {
-    x: Option<Array2<f64>>,
-    a: Option<Array2<f64>>,
+    x: Option<Array2<f32>>,
+    a: Option<Array2<f32>>,
 }
 
 pub(crate) struct InputOfAffineLayer {
-    pub(crate) x: Array2<f64>,
-    pub(crate) a: Array2<f64>,
-    pub(crate) b: Array1<f64>,
+    pub(crate) x: Array2<f32>,
+    pub(crate) a: Array2<f32>,
+    pub(crate) b: Array1<f32>,
 }
 
 pub(crate) struct DInputOfAffineLayer {
-    pub(crate) dx: Array2<f64>,
-    pub(crate) da: Array2<f64>,
-    pub(crate) db: Array1<f64>,
+    pub(crate) dx: Array2<f32>,
+    pub(crate) da: Array2<f32>,
+    pub(crate) db: Array1<f32>,
 }
 
 pub(crate) struct OutputOfAffineLayer {
-    out: Array2<f64>,
+    out: Array2<f32>,
 }
 
-impl Into<Array2<f64>> for OutputOfAffineLayer {
-    fn into(self) -> Array2<f64> {
+impl Into<Array2<f32>> for OutputOfAffineLayer {
+    fn into(self) -> Array2<f32> {
         self.out
     }
 }
 
-impl From<Array2<f64>> for OutputOfAffineLayer {
-    fn from(value: Array2<f64>) -> Self {
+impl From<Array2<f32>> for OutputOfAffineLayer {
+    fn from(value: Array2<f32>) -> Self {
         Self { out: value }
     }
 }

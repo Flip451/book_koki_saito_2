@@ -18,7 +18,7 @@ use neural_network::{
 const BATCH_SIZE: usize = 100;
 const MAX_EPOCH: usize = 17;
 const HIDDNE_SIZES: [usize; 1] = [50];
-const LEARNING_RATE: f64 = 0.001;
+const LEARNING_RATE: f32 = 0.001;
 
 fn main() {
     // 学習用データの読み込み
@@ -87,7 +87,7 @@ fn main() {
                 one_hot_label[predict] == 1.
             })
             .count();
-        let accuracy_rate = correct_number as f64 / n as f64;
+        let accuracy_rate = correct_number as f32 / n as f32;
 
         println!("epoch: {}, acc: {}", i, accuracy_rate);
     }

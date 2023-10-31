@@ -8,14 +8,14 @@ use crate::dataset::dataset::MiniBatch;
 use self::one_hot_label::OneHotLabel;
 
 pub(super) struct ImageWithClass {
-    image: Array1<f64>,
+    image: Array1<f32>,
     class: OneHotLabel,
 }
 
 impl ImageWithClass {
     fn new(image_pixels: &[u8], label: u8) -> Self {
         let class = OneHotLabel::new(label as usize, 10);
-        let image = Array1::from(image_pixels.to_vec()).mapv(|x| x as f64);
+        let image = Array1::from(image_pixels.to_vec()).mapv(|x| x as f32);
         Self { image, class }
     }
 
@@ -111,13 +111,13 @@ impl ImageWithClass {
 
 impl MiniBatch {
     pub(super) fn from_images(images: &[ImageWithClass]) -> Self {
-        let bundled_points: Vec<Array1<f64>> = images
+        let bundled_points: Vec<Array1<f32>> = images
             .iter()
             .map(|image_with_class| image_with_class.image.clone())
             .collect();
         let bundled_inputs = bundle_1d_arrays_into_2d_array(bundled_points);
 
-        let bundled_one_hot_labels: Vec<Array1<f64>> = images
+        let bundled_one_hot_labels: Vec<Array1<f32>> = images
             .iter()
             .map(|image_with_class| image_with_class.class.get_array())
             .collect();

@@ -17,8 +17,8 @@ pub(crate) struct AffineLayer {
 
 #[derive(Clone)]
 pub struct ParamsOfAffineLayer {
-    pub(crate) w: Array2<f64>,
-    pub(crate) b: Array1<f64>,
+    pub(crate) w: Array2<f32>,
+    pub(crate) b: Array1<f32>,
 }
 
 impl Add for ParamsOfAffineLayer {
@@ -50,10 +50,10 @@ impl SubAssign for ParamsOfAffineLayer {
     }
 }
 
-impl Mul<f64> for ParamsOfAffineLayer {
+impl Mul<f32> for ParamsOfAffineLayer {
     type Output = Self;
 
-    fn mul(self, rhs: f64) -> Self::Output {
+    fn mul(self, rhs: f32) -> Self::Output {
         ParamsOfAffineLayer {
             w: self.w * rhs,
             b: self.b * rhs,
@@ -83,7 +83,7 @@ impl LayerBase for AffineLayer {
 }
 
 impl TransformLayer for AffineLayer {
-    fn forward(&mut self, input: Array2<f64>) -> Array2<f64> {
+    fn forward(&mut self, input: Array2<f32>) -> Array2<f32> {
         self.affine
             .forward(InputOfAffineLayer {
                 x: input,
@@ -93,7 +93,7 @@ impl TransformLayer for AffineLayer {
             .into()
     }
 
-    fn backward(&mut self, dout: Array2<f64>) -> Array2<f64> {
+    fn backward(&mut self, dout: Array2<f32>) -> Array2<f32> {
         let DInputOfAffineLayer { dx, da, db } =
             self.affine.backward(OutputOfAffineLayer::from(dout));
         self.grads.w = da;

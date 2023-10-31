@@ -11,14 +11,14 @@ use neural_network::{
 const BATCH_SIZE: usize = 30;
 const MAX_EPOCH: usize = 300;
 const HIDDNE_SIZES: [usize; 1] = [10];
-const LEARNING_RATE: f64 = 1.;
+const LEARNING_RATE: f32 = 1.;
 
 fn main() {
     let params = InitParamsOfSpiralDataset {
         batch_size: BATCH_SIZE,
         number_of_class: 3,
         point_per_class: 100,
-        max_angle: 1. * std::f64::consts::PI,
+        max_angle: 1. * std::f32::consts::PI,
     };
     let mut dataset = SpiralDataset::new(params);
 

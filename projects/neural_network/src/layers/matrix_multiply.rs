@@ -9,22 +9,22 @@ use ndarray::Array2;
 use super::layer::Layer;
 
 struct MatMul {
-    x: Option<Array2<f64>>,
-    a: Option<Array2<f64>>,
+    x: Option<Array2<f32>>,
+    a: Option<Array2<f32>>,
 }
 
 struct InputOfMatMulLayer {
-    x: Array2<f64>,
-    a: Array2<f64>,
+    x: Array2<f32>,
+    a: Array2<f32>,
 }
 
 struct DInputOfMatMulLayer {
-    dx: Array2<f64>,
-    da: Array2<f64>,
+    dx: Array2<f32>,
+    da: Array2<f32>,
 }
 
 struct OutputOfMatMulLayer {
-    out: Array2<f64>,
+    out: Array2<f32>,
 }
 
 impl Layer for MatMul {

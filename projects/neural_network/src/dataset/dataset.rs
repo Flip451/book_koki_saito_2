@@ -6,6 +6,6 @@ pub trait Dataset: ExactSizeIterator<Item = MiniBatch> {
 }
 
 pub struct MiniBatch {
-    pub bundled_inputs: Array2<f64>,
-    pub bundled_one_hot_labels: Array2<f64>,
+    pub bundled_inputs: Array2<f32>,
+    pub bundled_one_hot_labels: Array2<f32>,
 }

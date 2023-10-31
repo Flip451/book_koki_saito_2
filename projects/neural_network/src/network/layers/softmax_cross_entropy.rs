@@ -27,10 +27,10 @@ impl Sub for ParamsOfSoftmaxCrossEntropyLayer {
     }
 }
 
-impl Mul<f64> for ParamsOfSoftmaxCrossEntropyLayer {
+impl Mul<f32> for ParamsOfSoftmaxCrossEntropyLayer {
     type Output = Self;
 
-    fn mul(self, _: f64) -> Self::Output {
+    fn mul(self, _: f32) -> Self::Output {
         ParamsOfSoftmaxCrossEntropyLayer()
     }
 }
@@ -53,13 +53,13 @@ impl LayerBase for SoftmaxCrossEntropyLayer {
 }
 
 impl LossLayer for SoftmaxCrossEntropyLayer {
-    fn forward(&mut self, input: Array2<f64>, one_hot_labels: Array2<f64>) -> f64 {
+    fn forward(&mut self, input: Array2<f32>, one_hot_labels: Array2<f32>) -> f32 {
         self.softmax_cross_entropy
             .forward(InputOfSoftmaxCrossEntropyLayer::from(input, one_hot_labels))
             .into()
     }
 
-    fn backward(&mut self, dout: f64) -> Array2<f64> {
+    fn backward(&mut self, dout: f32) -> Array2<f32> {
         self.softmax_cross_entropy
             .backward(OutputOfSoftmaxCrossEntropyLayer::from(dout))
             .into()

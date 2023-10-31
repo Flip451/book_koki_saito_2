@@ -15,8 +15,8 @@ use super::{
 };
 
 // ハイパーパラメータ
-const MEAN_DISTR: f64 = 0.;
-const STD_DEV_DISTR: f64 = 0.01;
+const MEAN_DISTR: f32 = 0.;
+const STD_DEV_DISTR: f32 = 0.01;
 
 enum HiddenLayer {
     Affine(AffineLayer),
@@ -101,7 +101,7 @@ impl SimpleNetwork {
 }
 
 impl Network for SimpleNetwork {
-    fn predict(&mut self, input: Array2<f64>) -> Array2<f64> {
+    fn predict(&mut self, input: Array2<f32>) -> Array2<f32> {
         let mut input = input;
         for layer in &mut self.layers {
             match layer {
@@ -119,13 +119,13 @@ impl Network for SimpleNetwork {
         input
     }
 
-    fn forward(&mut self, input: Array2<f64>, one_hot_labels: Array2<f64>) -> f64 {
+    fn forward(&mut self, input: Array2<f32>, one_hot_labels: Array2<f32>) -> f32 {
         let score = self.predict(input);
         let loss = self.loss_layer.forward(score, one_hot_labels);
         loss
     }
 
-    fn backward(&mut self, dout: f64) -> Array2<f64> {
+    fn backward(&mut self, dout: f32) -> Array2<f32> {
         let mut dout = self.loss_layer.backward(dout);
         for layer in self.layers.iter_mut().rev() {
             match layer {

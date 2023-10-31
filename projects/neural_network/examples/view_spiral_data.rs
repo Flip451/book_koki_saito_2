@@ -8,7 +8,7 @@ fn main() -> Result<()> {
     let params = InitParamsOfSpiralDataset {
         point_per_class: 100,
         number_of_class: 3,
-        max_angle: 2.0 * std::f64::consts::PI,
+        max_angle: 2.0 * std::f32::consts::PI,
         batch_size: 30,
     };
     let spiral_dataset = SpiralDataset::new(params);
@@ -28,7 +28,7 @@ fn main() -> Result<()> {
         .y_label_area_size(80)
         .margin(10)
         .caption("Spiral", ("sans-serif", 40.0).into_font())
-        .build_cartesian_2d(-1_f64..1_f64, -1_f64..1_f64)?;
+        .build_cartesian_2d(-1_f32..1_f32, -1_f32..1_f32)?;
 
     chart
         .configure_mesh()

@@ -18,17 +18,17 @@ use ndarray::{Array1, Array2, ArrayView1};
 use super::layer::Layer;
 
 pub(crate) struct SoftmaxCrossEntropy {
-    y: Option<Array2<f64>>,
-    t: Option<Array2<f64>>,
+    y: Option<Array2<f32>>,
+    t: Option<Array2<f32>>,
 }
 
 pub(crate) struct InputOfSoftmaxCrossEntropyLayer {
-    input: Array2<f64>,
-    t: Array2<f64>,
+    input: Array2<f32>,
+    t: Array2<f32>,
 }
 
 impl InputOfSoftmaxCrossEntropyLayer {
-    pub(crate) fn from(input: Array2<f64>, one_hot_labels: Array2<f64>) -> Self {
+    pub(crate) fn from(input: Array2<f32>, one_hot_labels: Array2<f32>) -> Self {
         Self {
             input,
             t: one_hot_labels,
@@ -37,44 +37,44 @@ impl InputOfSoftmaxCrossEntropyLayer {
 }
 
 pub(crate) struct DInputOfSoftmaxCrossEntropyLayer {
-    dinput: Array2<f64>,
+    dinput: Array2<f32>,
 }
 
-impl Into<Array2<f64>> for DInputOfSoftmaxCrossEntropyLayer {
-    fn into(self) -> Array2<f64> {
+impl Into<Array2<f32>> for DInputOfSoftmaxCrossEntropyLayer {
+    fn into(self) -> Array2<f32> {
         self.dinput
     }
 }
 
 pub(crate) struct OutputOfSoftmaxCrossEntropyLayer {
-    out: f64,
+    out: f32,
 }
 
-impl Into<f64> for OutputOfSoftmaxCrossEntropyLayer {
-    fn into(self) -> f64 {
+impl Into<f32> for OutputOfSoftmaxCrossEntropyLayer {
+    fn into(self) -> f32 {
         self.out
     }
 }
 
-impl From<f64> for OutputOfSoftmaxCrossEntropyLayer {
-    fn from(out: f64) -> Self {
+impl From<f32> for OutputOfSoftmaxCrossEntropyLayer {
+    fn from(out: f32) -> Self {
         Self { out }
     }
 }
 
-const TINY_DELTA: f64 = 0.00_000_000_01;
+const TINY_DELTA: f32 = 0.00_000_000_01;
 
 impl SoftmaxCrossEntropy {
-    fn softmax_1d(input: ArrayView1<f64>) -> Array1<f64> {
+    fn softmax_1d(input: ArrayView1<f32>) -> Array1<f32> {
         let max = input.iter().max_by(|&a, &b| a.total_cmp(b)).unwrap();
         let exp = input.mapv(|x| (x - max).exp());
         let sum = exp.sum();
         exp / sum
     }
 
-    fn softmax(input: Array2<f64>) -> Array2<f64> {
+    fn softmax(input: Array2<f32>) -> Array2<f32> {
         let (height, width) = input.dim();
-        let flattened: Array1<f64> = input
+        let flattened: Array1<f32> = input
             .rows()
             .into_iter()
             .flat_map(|row| Self::softmax_1d(row))
@@ -82,15 +82,15 @@ impl SoftmaxCrossEntropy {
         flattened.into_shape((height, width)).unwrap()
     }
 
-    fn cross_entropy(input: Array2<f64>, t: Array2<f64>) -> f64 {
+    fn cross_entropy(input: Array2<f32>, t: Array2<f32>) -> f32 {
         assert_eq!(input.dim(), t.dim());
         let batch_size = input.shape()[0];
         input
             .into_iter()
             .zip(t)
             .map(|(input, t)| -t * (if input == 0. { TINY_DELTA } else { input }).ln())
-            .sum::<f64>()
-            / batch_size as f64
+            .sum::<f32>()
+            / batch_size as f32
     }
 }
 
@@ -121,7 +121,7 @@ impl Layer for SoftmaxCrossEntropy {
         let t = self.t.as_ref().unwrap();
         assert_eq!(y.dim(), t.dim());
 
-        let batch_size = y.shape()[0] as f64;
+        let batch_size = y.shape()[0] as f32;
         Self::DInput {
             dinput: (y - t) / batch_size,
         }
@@ -146,12 +146,12 @@ mod tests {
         let output = softmax_cross_entropy.forward(input);
 
         // input, onehots の第１行目の loss の計算
-        let sum1 = (-17_f64).exp() + (-16_f64).exp() + 1.;
+        let sum1 = (-17_f32).exp() + (-16_f32).exp() + 1.;
         let loss1 = -(1. / sum1).ln();
 
         // input, onehots の第２行目の loss の計算
-        let sum2 = (-8_f64).exp() + (-2_f64).exp() + 1.;
-        let loss2 = -((-2_f64).exp() / sum2).ln();
+        let sum2 = (-8_f32).exp() + (-2_f32).exp() + 1.;
+        let loss2 = -((-2_f32).exp() / sum2).ln();
 
         let expected = (loss1 + loss2) / 2.;
         assert_eq!(output.out, expected);
@@ -162,7 +162,7 @@ mod tests {
         let mut softmax_cross_entropy = SoftmaxCrossEntropy::new();
 
         // 微分を数値計算するための微小量
-        const DELTA: f64 = 0.00_000_01;
+        const DELTA: f32 = 0.00_000_01;
 
         // 入力をランダムに生成
         let input = Array::random((13, 7), Normal::new(0., 1.).unwrap());

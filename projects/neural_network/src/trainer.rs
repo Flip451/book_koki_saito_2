@@ -15,8 +15,8 @@ where
 {
     network: Net,
     optimizer: Opt,
-    loss_list: Vec<f64>,
-    acc_list: Vec<f64>,
+    loss_list: Vec<f32>,
+    acc_list: Vec<f32>,
     eval_interval: Option<usize>,
 }
 
@@ -39,7 +39,7 @@ where
         &mut self,
         dataset: &mut D,
         max_epoch: usize,
-        // max_grad: Option<f64>,
+        // max_grad: Option<f32>,
         eval_interval: usize,
     ) {
         self.eval_interval = Some(eval_interval);
@@ -83,9 +83,9 @@ where
                 // 評価
                 if loss_count == eval_interval {
                     // 損失の平均値の計算
-                    let loss_avg = total_loss / loss_count as f64;
+                    let loss_avg = total_loss / loss_count as f32;
                     // 実行時間の取得
-                    let elapsed_time = start_time.elapsed().as_secs_f64();
+                    let elapsed_time = start_time.elapsed().as_secs_f32();
 
                     // 時間、イテレーション、損失の表示
                     println!(
@@ -111,7 +111,7 @@ where
         }
     }
 
-    fn accuracy<D: Dataset>(&mut self, dataset: &D) -> f64 {
+    fn accuracy<D: Dataset>(&mut self, dataset: &D) -> f32 {
         // テストデータでの評価
         let MiniBatch {
             bundled_one_hot_labels,
@@ -140,7 +140,7 @@ where
             .count();
 
         // 正解率の計算
-        let accuracy_rate = correct_number as f64 / n as f64;
+        let accuracy_rate = correct_number as f32 / n as f32;
 
         accuracy_rate
     }
@@ -153,10 +153,10 @@ where
         Self::plot(&self.loss_list, out_path, &format!("iteration (x{:?})", self.eval_interval.unwrap()), "loss", "Loss")
     }
 
-    fn plot(list: &Vec<f64>, out_path: &str, x_label: &str, y_label: &str, caption: &str) -> Result<()> {
-        let max_x: f64 = list.len() as f64;
-        let max_y: f64 = *list.iter().max_by(|&a, &b| a.total_cmp(b)).unwrap();
-        let x = (0..max_x as usize).map(|x| x as f64);
+    fn plot(list: &Vec<f32>, out_path: &str, x_label: &str, y_label: &str, caption: &str) -> Result<()> {
+        let max_x: f32 = list.len() as f32;
+        let max_y: f32 = *list.iter().max_by(|&a, &b| a.total_cmp(b)).unwrap();
+        let x = (0..max_x as usize).map(|x| x as f32);
 
         // 背景の作成
         let root = BitMapBackend::new(out_path, (640, 480)).into_drawing_area();
@@ -168,7 +168,7 @@ where
             .y_label_area_size(80)
             .margin(20)
             .caption(caption, ("Arial", 40.0).into_font())
-            .build_cartesian_2d(0_f64..max_x, 0_f64..max_y)?;
+            .build_cartesian_2d(0_f32..max_x, 0_f32..max_y)?;
 
         // グラフのx軸、y軸の設定
         chart

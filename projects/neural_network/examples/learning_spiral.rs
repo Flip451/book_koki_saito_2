@@ -18,7 +18,7 @@ use neural_network::{
 const BATCH_SIZE: usize = 30;
 const MAX_EPOCH: usize = 300;
 const HIDDNE_SIZES: [usize; 1] = [10];
-const LEARNING_RATE: f64 = 1.;
+const LEARNING_RATE: f32 = 1.;
 
 fn main() {
     // 学習用データの作成
@@ -27,7 +27,7 @@ fn main() {
     let config = InitParamsOfSpiralDataset {
         point_per_class: POINT_PER_CLASS,
         number_of_class: NUMBER_OF_CLASS,
-        max_angle: 1.5 * std::f64::consts::PI,
+        max_angle: 1.5 * std::f32::consts::PI,
         batch_size: BATCH_SIZE,
     };
     let mut spiral_dataset = SpiralDataset::new(config);
@@ -92,7 +92,7 @@ fn main() {
             .count();
 
         // 正解率の計算
-        let accuracy_rate = correct_number as f64 / n as f64;
+        let accuracy_rate = correct_number as f32 / n as f32;
 
         println!("epoch: {}, acc: {}", i, accuracy_rate);
     }

@@ -25,10 +25,10 @@ impl Sub for ParamsOfSigmoidLayer {
     }
 }
 
-impl Mul<f64> for ParamsOfSigmoidLayer {
+impl Mul<f32> for ParamsOfSigmoidLayer {
     type Output = Self;
 
-    fn mul(self, _: f64) -> Self::Output {
+    fn mul(self, _: f32) -> Self::Output {
         ParamsOfSigmoidLayer()
     }
 }
@@ -52,13 +52,13 @@ impl LayerBase for SigmoidLayer {
 }
 
 impl TransformLayer for SigmoidLayer {
-    fn forward(&mut self, input: Array2<f64>) -> Array2<f64> {
+    fn forward(&mut self, input: Array2<f32>) -> Array2<f32> {
         self.sigmoid
             .forward(InputOfSigmoidLayer::from(input))
             .into()
     }
 
-    fn backward(&mut self, dout: Array2<f64>) -> Array2<f64> {
+    fn backward(&mut self, dout: Array2<f32>) -> Array2<f32> {
         self.sigmoid
             .backward(OutputOfSigmoidLayer::from(dout))
             .into()

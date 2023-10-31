@@ -1,11 +1,11 @@
-pub struct LearningRate(f64);
+pub struct LearningRate(f32);
 
 impl LearningRate {
-    pub fn new(lr: f64) -> Self {
+    pub fn new(lr: f32) -> Self {
         Self(lr)
     }
 
-    pub fn value(&self) -> f64 {
+    pub fn value(&self) -> f32 {
         self.0
     }
 }
