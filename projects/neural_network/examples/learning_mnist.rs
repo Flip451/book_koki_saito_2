@@ -1,8 +1,14 @@
 extern crate neural_network;
 
 use neural_network::{
-    dataset::{imp::mnist::{InitParamsOfMnistDataset, MnistDataset}, dataset::{MiniBatch, Dataset}},
-    network::{network::Network, simple_network::SimpleNetwork},
+    dataset::{
+        dataset::{Dataset, MiniBatch},
+        imp::mnist::{InitParamsOfMnistDataset, MnistDataset},
+    },
+    network::{
+        network::Network,
+        simple_network::{Activation, SimpleNetwork},
+    },
     optimizer::{
         imp::sgd::{learning_rate::LearningRate, SGD},
         optimizer::Optimizer,
@@ -31,7 +37,12 @@ fn main() {
     let output_size = 10;
 
     // ニューラルネットワークの初期化
-    let mut network = SimpleNetwork::new(input_size, HIDDNE_SIZES.to_vec(), output_size);
+    let mut network = SimpleNetwork::new(
+        input_size,
+        HIDDNE_SIZES.to_vec(),
+        output_size,
+        Activation::ReLU,
+    );
 
     // 最適化手法の設定（確率的勾配降下法）
     let lr = LearningRate::new(LEARNING_RATE);

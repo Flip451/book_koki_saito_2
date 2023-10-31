@@ -1,6 +1,6 @@
 use neural_network::{
     dataset::imp::spiral::{InitParamsOfSpiralDataset, SpiralDataset},
-    network,
+    network::{self, simple_network::Activation},
     optimizer::{
         imp::sgd::{learning_rate::LearningRate, SGD},
         optimizer::Optimizer,
@@ -18,14 +18,21 @@ fn main() {
         batch_size: BATCH_SIZE,
         number_of_class: 3,
         point_per_class: 100,
-        max_angle: 1.5 * std::f64::consts::PI,
+        max_angle: 1. * std::f64::consts::PI,
     };
     let mut dataset = SpiralDataset::new(params);
 
-    let network = network::simple_network::SimpleNetwork::new(2, HIDDNE_SIZES.to_vec(), 3);
+    let network = network::simple_network::SimpleNetwork::new(
+        2,
+        HIDDNE_SIZES.to_vec(),
+        3,
+        Activation::Sigmoid,
+    );
     let optimizer = SGD::new(LearningRate::new(LEARNING_RATE));
 
     let mut trainer = Trainer::new(network, optimizer);
 
     trainer.fit(&mut dataset, MAX_EPOCH, 10);
+    trainer.plot_accuracy("test_acc.png").unwrap();
+    trainer.plot_loss("test_loss.png").unwrap();
 }

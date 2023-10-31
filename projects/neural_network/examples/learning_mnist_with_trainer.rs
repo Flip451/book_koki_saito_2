@@ -1,6 +1,6 @@
 use neural_network::{
     dataset::imp::mnist::{InitParamsOfMnistDataset, MnistDataset},
-    network::simple_network::SimpleNetwork,
+    network::simple_network::{Activation, SimpleNetwork},
     optimizer::{
         imp::sgd::{learning_rate::LearningRate, SGD},
         optimizer::Optimizer,
@@ -9,7 +9,7 @@ use neural_network::{
 };
 
 const BATCH_SIZE: usize = 100;
-const MAX_EPOCH: usize = 17;
+const MAX_EPOCH: usize = 16;
 const HIDDNE_SIZES: [usize; 1] = [50];
 const LEARNING_RATE: f64 = 0.001;
 
@@ -23,10 +23,12 @@ fn main() {
     };
     let mut dataset = MnistDataset::new(params);
 
-    let network = SimpleNetwork::new(28 * 28, HIDDNE_SIZES.to_vec(), 10);
+    let network = SimpleNetwork::new(28 * 28, HIDDNE_SIZES.to_vec(), 10, Activation::ReLU);
     let optimizer = SGD::new(LearningRate::new(LEARNING_RATE));
 
     let mut trainer = Trainer::new(network, optimizer);
 
     trainer.fit(&mut dataset, MAX_EPOCH, 10);
+    trainer.plot_accuracy("test_acc.png").unwrap();
+    trainer.plot_loss("test_loss.png").unwrap();
 }
