@@ -89,3 +89,9 @@ impl Iterator for SpiralDataset {
         }
     }
 }
+
+impl  ExactSizeIterator for SpiralDataset {
+    fn len(&self) -> usize {
+        self.points.len() / self.batch_size
+    }
+}

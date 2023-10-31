@@ -71,3 +71,9 @@ impl Iterator for MnistDataset {
         }
     }
 }
+
+impl ExactSizeIterator for MnistDataset {
+    fn len(&self) -> usize {
+        self.train_images.len() / self.batch_size
+    }
+}
