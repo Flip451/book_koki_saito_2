@@ -5,17 +5,17 @@ use super::layer::Layer;
 struct Add {}
 
 struct InputOfAddLayer {
-    a: Array2<f64>,
-    b: Array2<f64>,
+    a: Array2<f32>,
+    b: Array2<f32>,
 }
 
 struct OutputOfAddLayer {
-    out: Array2<f64>,
+    out: Array2<f32>,
 }
 
 struct DInputOfAddLayer {
-    da: Array2<f64>,
-    db: Array2<f64>,
+    da: Array2<f32>,
+    db: Array2<f32>,
 }
 
 impl Layer for Add {

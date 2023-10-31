@@ -1,6 +1,6 @@
 mod point_with_class;
 
-use std::{collections::HashMap, f64::consts::PI};
+use std::{collections::HashMap, f32::consts::PI};
 
 use rand::seq::SliceRandom;
 
@@ -18,7 +18,7 @@ pub struct InitParamsOfSpiralDataset {
     pub batch_size: usize,
     pub number_of_class: usize,
     pub point_per_class: usize,
-    pub max_angle: f64,
+    pub max_angle: f32,
 }
 
 impl SpiralDataset {
@@ -34,10 +34,10 @@ impl SpiralDataset {
 
         for class in 0..number_of_class {
             for i in 0..point_per_class {
-                let radius = (i as f64) / (point_per_class as f64);
-                let angle = (i as f64) / (point_per_class as f64) * max_angle
-                    + (class as f64 / number_of_class as f64) * 2.0 * PI
-                    + rand::random::<f64>() * 1.;
+                let radius = (i as f32) / (point_per_class as f32);
+                let angle = (i as f32) / (point_per_class as f32) * max_angle
+                    + (class as f32 / number_of_class as f32) * 2.0 * PI
+                    + rand::random::<f32>() * 1.;
                 let x = radius * angle.cos();
                 let y = radius * angle.sin();
                 let point_with_class = PointWithClass::new(x, y, class, number_of_class);
@@ -52,7 +52,7 @@ impl SpiralDataset {
         }
     }
 
-    pub fn get_points(&self) -> HashMap<usize, Vec<(f64, f64)>> {
+    pub fn get_points(&self) -> HashMap<usize, Vec<(f32, f32)>> {
         let mut map = HashMap::new();
         for point in &self.points {
             let class = point.get_class();

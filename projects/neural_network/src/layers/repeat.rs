@@ -7,16 +7,16 @@ struct Repeat {
 }
 
 struct InputOfRepeatLayer {
-    input: Array1<f64>,
+    input: Array1<f32>,
     n: usize,
 }
 
 struct DInputOfRepeatLayer {
-    dinput: Array1<f64>,
+    dinput: Array1<f32>,
 }
 
 struct OutputOfRepeatLayer {
-    out: Array2<f64>,
+    out: Array2<f32>,
 }
 
 impl Layer for Repeat {

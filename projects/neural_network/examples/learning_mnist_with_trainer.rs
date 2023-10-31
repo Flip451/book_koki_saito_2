@@ -11,7 +11,7 @@ use neural_network::{
 const BATCH_SIZE: usize = 100;
 const MAX_EPOCH: usize = 16;
 const HIDDNE_SIZES: [usize; 1] = [50];
-const LEARNING_RATE: f64 = 0.001;
+const LEARNING_RATE: f32 = 0.001;
 
 fn main() {
     let params = InitParamsOfMnistDataset {

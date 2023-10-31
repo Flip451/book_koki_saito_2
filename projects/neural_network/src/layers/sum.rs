@@ -7,15 +7,15 @@ struct Sum {
 }
 
 struct InputOfSumLayer {
-    input: Array2<f64>,
+    input: Array2<f32>,
 }
 
 struct DInputOfSumLayer {
-    dinput: Array2<f64>,
+    dinput: Array2<f32>,
 }
 
 struct OutputOfSumLayer {
-    out: Array1<f64>,
+    out: Array1<f32>,
 }
 
 impl Layer for Sum {

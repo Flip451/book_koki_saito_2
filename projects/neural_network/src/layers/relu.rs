@@ -16,37 +16,37 @@ pub(crate) struct ReLU {
 }
 
 pub(crate) struct InputOfReLULayer {
-    input: Array2<f64>,
+    input: Array2<f32>,
 }
 
-impl From<Array2<f64>> for InputOfReLULayer {
-    fn from(value: Array2<f64>) -> Self {
+impl From<Array2<f32>> for InputOfReLULayer {
+    fn from(value: Array2<f32>) -> Self {
         Self { input: value }
     }
 }
 
 pub(crate) struct DInputOfReLULayer {
-    dinput: Array2<f64>,
+    dinput: Array2<f32>,
 }
 
-impl Into<Array2<f64>> for DInputOfReLULayer {
-    fn into(self) -> Array2<f64> {
+impl Into<Array2<f32>> for DInputOfReLULayer {
+    fn into(self) -> Array2<f32> {
         self.dinput
     }
 }
 
 pub(crate) struct OutputOfReLULayer {
-    out: Array2<f64>,
+    out: Array2<f32>,
 }
 
-impl From<Array2<f64>> for OutputOfReLULayer {
-    fn from(value: Array2<f64>) -> Self {
+impl From<Array2<f32>> for OutputOfReLULayer {
+    fn from(value: Array2<f32>) -> Self {
         Self { out: value }
     }
 }
 
-impl Into<Array2<f64>> for OutputOfReLULayer {
-    fn into(self) -> Array2<f64> {
+impl Into<Array2<f32>> for OutputOfReLULayer {
+    fn into(self) -> Array2<f32> {
         self.out
     }
 }
@@ -72,7 +72,7 @@ impl Layer for ReLU {
         let filter = self.filter.as_ref().unwrap();
         let Self::Output { out: dout } = dout;
 
-        let dinput_1d: Array1<f64> = dout.into_iter().zip(filter).map(|(dout, filter)| {
+        let dinput_1d: Array1<f32> = dout.into_iter().zip(filter).map(|(dout, filter)| {
             if *filter {
                 dout
             } else {

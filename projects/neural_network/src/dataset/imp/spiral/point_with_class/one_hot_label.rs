@@ -1,6 +1,6 @@
 use ndarray::Array1;
 
-pub(super) struct OneHotLabel(Array1<f64>);
+pub(super) struct OneHotLabel(Array1<f32>);
 
 impl OneHotLabel {
     pub(super) fn new(class: usize, number_of_class: usize) -> Self {
@@ -10,7 +10,7 @@ impl OneHotLabel {
         Self(Array1::from(label))
     }
 
-    pub(super) fn get_array(&self) -> Array1<f64> {
+    pub(super) fn get_array(&self) -> Array1<f32> {
         self.0.clone()
     }
 

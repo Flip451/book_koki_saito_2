@@ -8,41 +8,41 @@ use ndarray::Array2;
 use super::layer::Layer;
 
 pub(crate) struct Sigmoid {
-    out: Option<Array2<f64>>,
+    out: Option<Array2<f32>>,
 }
 
 pub(crate) struct InputOfSigmoidLayer {
-    input: Array2<f64>,
+    input: Array2<f32>,
 }
 
-impl From<Array2<f64>> for InputOfSigmoidLayer {
-    fn from(value: Array2<f64>) -> Self {
+impl From<Array2<f32>> for InputOfSigmoidLayer {
+    fn from(value: Array2<f32>) -> Self {
         Self { input: value }
     }
 }
 
 pub(crate) struct DInputOfSigmoidLayer {
-    dinput: Array2<f64>,
+    dinput: Array2<f32>,
 }
 
-impl Into<Array2<f64>> for DInputOfSigmoidLayer {
-    fn into(self) -> Array2<f64> {
+impl Into<Array2<f32>> for DInputOfSigmoidLayer {
+    fn into(self) -> Array2<f32> {
         self.dinput
     }
 }
 
 pub(crate) struct OutputOfSigmoidLayer {
-    out: Array2<f64>,
+    out: Array2<f32>,
 }
 
-impl From<Array2<f64>> for OutputOfSigmoidLayer {
-    fn from(value: Array2<f64>) -> Self {
+impl From<Array2<f32>> for OutputOfSigmoidLayer {
+    fn from(value: Array2<f32>) -> Self {
         Self { out: value }
     }
 }
 
-impl Into<Array2<f64>> for OutputOfSigmoidLayer {
-    fn into(self) -> Array2<f64> {
+impl Into<Array2<f32>> for OutputOfSigmoidLayer {
+    fn into(self) -> Array2<f32> {
         self.out
     }
 }
@@ -90,14 +90,14 @@ mod tests {
 
         let expected = array![
             [
-                (1.) / (1. + (-1_f64).exp()),
-                (1.) / (1. + (-2_f64).exp()),
-                (1.) / (1. + (-3_f64).exp())
+                (1.) / (1. + (-1_f32).exp()),
+                (1.) / (1. + (-2_f32).exp()),
+                (1.) / (1. + (-3_f32).exp())
             ],
             [
-                (1.) / (1. + (-4_f64).exp()),
-                (1.) / (1. + (-5_f64).exp()),
-                (1.) / (1. + (-6_f64).exp())
+                (1.) / (1. + (-4_f32).exp()),
+                (1.) / (1. + (-5_f32).exp()),
+                (1.) / (1. + (-6_f32).exp())
             ]
         ];
         assert_eq!(output.out, expected);
@@ -112,14 +112,14 @@ mod tests {
         // dy/dx = 1/[4cosh^2(x/2)]
         let expected = array![
             [
-                (7.) / 4. / 0.5_f64.cosh().powf(2.),
-                (8.) / 4. / 1_f64.cosh().powf(2.),
-                (9.) / 4. / 1.5_f64.cosh().powf(2.),
+                (7.) / 4. / 0.5_f32.cosh().powf(2.),
+                (8.) / 4. / 1_f32.cosh().powf(2.),
+                (9.) / 4. / 1.5_f32.cosh().powf(2.),
             ],
             [
-                (10.) / 4. / 2_f64.cosh().powf(2.),
-                (11.) / 4. / 2.5_f64.cosh().powf(2.),
-                (12.) / 4. / 3_f64.cosh().powf(2.),
+                (10.) / 4. / 2_f32.cosh().powf(2.),
+                (11.) / 4. / 2.5_f32.cosh().powf(2.),
+                (12.) / 4. / 3_f32.cosh().powf(2.),
             ]
         ];
         dinput

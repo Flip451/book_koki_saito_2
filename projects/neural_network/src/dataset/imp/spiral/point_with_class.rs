@@ -6,13 +6,13 @@ use crate::dataset::dataset::MiniBatch;
 use self::one_hot_label::OneHotLabel;
 
 pub(super) struct PointWithClass {
-    x: f64,
-    y: f64,
+    x: f32,
+    y: f32,
     class: OneHotLabel,
 }
 
 impl PointWithClass {
-    pub(super) fn new(x: f64, y: f64, class: usize, class_number: usize) -> Self {
+    pub(super) fn new(x: f32, y: f32, class: usize, class_number: usize) -> Self {
         Self {
             x,
             y,
@@ -24,20 +24,20 @@ impl PointWithClass {
         self.class.get_class()
     }
 
-    pub(super) fn get_xy(&self) -> (f64, f64) {
+    pub(super) fn get_xy(&self) -> (f32, f32) {
         (self.x, self.y)
     }
 }
 
 impl MiniBatch {
     pub(super) fn from_points(points: &[PointWithClass]) -> Self {
-        let bundled_points: Vec<Array1<f64>> = points
+        let bundled_points: Vec<Array1<f32>> = points
             .iter()
             .map(|point| array![point.x, point.y])
             .collect();
         let bundled_inputs = bundle_1d_arrays_into_2d_array(bundled_points);
 
-        let bundled_one_hot_labels: Vec<Array1<f64>> =
+        let bundled_one_hot_labels: Vec<Array1<f32>> =
             points.iter().map(|point| point.class.get_array()).collect();
         let bundled_one_hot_labels = bundle_1d_arrays_into_2d_array(bundled_one_hot_labels);
 

@@ -7,5 +7,5 @@ pub trait Optimizer {
     fn update<P, G>(&self, params: &mut P, grads: &G)
     where
         P: Add<G, Output = P> + Clone,
-        G: Mul<f64, Output = G> + Clone;
+        G: Mul<f32, Output = G> + Clone;
 }

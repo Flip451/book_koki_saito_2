@@ -5,16 +5,16 @@ use super::layer::Layer;
 struct Branch {}
 
 struct InputOfBranchLayer {
-    input: Array2<f64>,
+    input: Array2<f32>,
 }
 
 struct DInputOfBranchLayer {
-    dinput: Array2<f64>
+    dinput: Array2<f32>
 }
 
 struct OutputOfBranchLayer {
-    a: Array2<f64>,
-    b: Array2<f64>,
+    a: Array2<f32>,
+    b: Array2<f32>,
 }
 
 impl Layer for Branch

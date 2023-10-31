@@ -25,10 +25,10 @@ impl Sub for ParamsOfReLULayer {
     }
 }
 
-impl Mul<f64> for ParamsOfReLULayer {
+impl Mul<f32> for ParamsOfReLULayer {
     type Output = Self;
 
-    fn mul(self, _: f64) -> Self::Output {
+    fn mul(self, _: f32) -> Self::Output {
         ParamsOfReLULayer()
     }
 }
@@ -52,13 +52,13 @@ impl LayerBase for ReLULayer {
 }
 
 impl TransformLayer for ReLULayer {
-    fn forward(&mut self, input: Array2<f64>) -> Array2<f64> {
+    fn forward(&mut self, input: Array2<f32>) -> Array2<f32> {
         self.relu
             .forward(InputOfReLULayer::from(input))
             .into()
     }
 
-    fn backward(&mut self, dout: Array2<f64>) -> Array2<f64> {
+    fn backward(&mut self, dout: Array2<f32>) -> Array2<f32> {
         self.relu
             .backward(OutputOfReLULayer::from(dout))
             .into()
