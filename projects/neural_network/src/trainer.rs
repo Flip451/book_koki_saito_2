@@ -146,49 +146,16 @@ where
     }
 
     pub fn plot_accuracy(&self, out_path: &'static str) -> Result<()> {
-        let max_x: f64 = self.acc_list.len() as f64;
-        let max_y: f64 = 1.;
-        let x = (0..max_x as usize).map(|x| x as f64);
-
-        // 背景の作成
-        let root = BitMapBackend::new(out_path, (640, 480)).into_drawing_area();
-        root.fill(&WHITE)?;
-
-        // グラフの描画範囲の設定
-        let mut chart = ChartBuilder::on(&root)
-            .x_label_area_size(70)
-            .y_label_area_size(80)
-            .margin(20)
-            .caption("Accuracy", ("Arial", 40.0).into_font())
-            .build_cartesian_2d(0_f64..max_x, 0_f64..max_y)?;
-
-        // グラフのx軸、y軸の設定
-        chart
-            .configure_mesh()
-            .disable_mesh()
-            .x_desc("epoch")
-            .y_desc("accuracy")
-            .x_label_formatter(&|x| format!("{:2.0}", x))
-            .y_label_formatter(&|x| format!("{:2.1}", x))
-            .axis_desc_style(FontDesc::new(FontFamily::SansSerif, 32., FontStyle::Normal))
-            .label_style(FontDesc::new(FontFamily::SansSerif, 24., FontStyle::Normal))
-            .draw()?;
-
-        // データの描画設定
-        chart.draw_series(LineSeries::new(
-            zip(x, self.acc_list.iter()).map(|(x, y)| (x, *y)),
-            &BLUE,
-        ))?;
-
-        // グラフの描画
-        root.present().expect("Unable to write result to file, please make sure 'plotters-doc-data' dir exists under current dir");
-        println!("Result has been saved to {}", out_path);
-        Ok(())
+        Self::plot(&self.acc_list, out_path, "epoch", "accuracy", "Accuracy")
     }
 
     pub fn plot_loss(&self, out_path: &'static str) -> Result<()> {
-        let max_x: f64 = self.loss_list.len() as f64;
-        let max_y: f64 = *self.loss_list.iter().max_by(|&a, &b| a.total_cmp(b)).unwrap();
+        Self::plot(&self.loss_list, out_path, &format!("iteration (x{:?})", self.eval_interval.unwrap()), "loss", "Loss")
+    }
+
+    fn plot(list: &Vec<f64>, out_path: &str, x_label: &str, y_label: &str, caption: &str) -> Result<()> {
+        let max_x: f64 = list.len() as f64;
+        let max_y: f64 = *list.iter().max_by(|&a, &b| a.total_cmp(b)).unwrap();
         let x = (0..max_x as usize).map(|x| x as f64);
 
         // 背景の作成
@@ -200,15 +167,15 @@ where
             .x_label_area_size(70)
             .y_label_area_size(80)
             .margin(20)
-            .caption("Accuracy", ("Arial", 40.0).into_font())
+            .caption(caption, ("Arial", 40.0).into_font())
             .build_cartesian_2d(0_f64..max_x, 0_f64..max_y)?;
 
         // グラフのx軸、y軸の設定
         chart
             .configure_mesh()
             .disable_mesh()
-            .x_desc("iteration x eval_interval")
-            .y_desc("accuracy")
+            .x_desc(x_label)
+            .y_desc(y_label)
             .x_label_formatter(&|x| format!("{:2.0}", x))
             .y_label_formatter(&|x| format!("{:2.1}", x))
             .axis_desc_style(FontDesc::new(FontFamily::SansSerif, 32., FontStyle::Normal))
@@ -217,7 +184,7 @@ where
 
         // データの描画設定
         chart.draw_series(LineSeries::new(
-            zip(x, self.loss_list.iter()).map(|(x, y)| (x, *y)),
+            zip(x, list.iter()).map(|(x, y)| (x, *y)),
             &BLUE,
         ))?;
 
