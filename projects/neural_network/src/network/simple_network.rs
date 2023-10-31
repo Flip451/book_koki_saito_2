@@ -6,7 +6,7 @@ use crate::optimizer::optimizer::Optimizer;
 use super::{
     layers::{
         affine::{AffineLayer, ParamsOfAffineLayer},
-        layer::{LayerBase, LossLayer, TransformLayer},
+        layer::{LayerBase, LossLayer, IntermediateLayer},
         relu::{ParamsOfReLULayer, ReLULayer},
         sigmoid::{ParamsOfSigmoidLayer, SigmoidLayer},
         softmax_cross_entropy::{ParamsOfSoftmaxCrossEntropyLayer, SoftmaxCrossEntropyLayer},

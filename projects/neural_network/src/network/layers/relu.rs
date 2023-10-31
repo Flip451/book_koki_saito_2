@@ -1,5 +1,3 @@
-use std::ops::{Mul, Sub};
-
 use ndarray::Array2;
 
 use crate::layers::{
@@ -7,7 +5,7 @@ use crate::layers::{
     relu::{InputOfReLULayer, OutputOfReLULayer, ReLU},
 };
 
-use super::layer::{LayerBase, TransformLayer};
+use super::layer::{LayerBase, IntermediateLayer};
 
 pub(crate) struct ReLULayer {
     relu: ReLU,
@@ -16,22 +14,6 @@ pub(crate) struct ReLULayer {
 }
 
 pub(crate) struct ParamsOfReLULayer();
-
-impl Sub for ParamsOfReLULayer {
-    type Output = ParamsOfReLULayer;
-
-    fn sub(self, _: Self) -> Self::Output {
-        ParamsOfReLULayer()
-    }
-}
-
-impl Mul<f32> for ParamsOfReLULayer {
-    type Output = Self;
-
-    fn mul(self, _: f32) -> Self::Output {
-        ParamsOfReLULayer()
-    }
-}
 
 impl LayerBase for ReLULayer {
     type Params = ParamsOfReLULayer;
@@ -51,7 +33,7 @@ impl LayerBase for ReLULayer {
     }
 }
 
-impl TransformLayer for ReLULayer {
+impl IntermediateLayer for ReLULayer {
     fn forward(&mut self, input: Array2<f32>) -> Array2<f32> {
         self.relu
             .forward(InputOfReLULayer::from(input))

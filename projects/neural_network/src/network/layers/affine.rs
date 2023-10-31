@@ -1,4 +1,4 @@
-use std::ops::{Add, Mul, Sub, SubAssign};
+use std::ops::{Add, Mul};
 
 use ndarray::{Array1, Array2};
 
@@ -7,7 +7,7 @@ use crate::layers::{
     layer::Layer,
 };
 
-use super::layer::{LayerBase, TransformLayer};
+use super::layer::{LayerBase, IntermediateLayer};
 
 pub(crate) struct AffineLayer {
     affine: Affine,
@@ -29,24 +29,6 @@ impl Add for ParamsOfAffineLayer {
             w: self.w + rhs.w,
             b: self.b + rhs.b,
         }
-    }
-}
-
-impl Sub for ParamsOfAffineLayer {
-    type Output = ParamsOfAffineLayer;
-
-    fn sub(self, rhs: Self) -> Self::Output {
-        ParamsOfAffineLayer {
-            w: self.w - rhs.w,
-            b: self.b - rhs.b,
-        }
-    }
-}
-
-impl SubAssign for ParamsOfAffineLayer {
-    fn sub_assign(&mut self, rhs: Self) {
-        self.w = self.w.clone() - rhs.w;
-        self.b = self.b.clone() - rhs.b;
     }
 }
 
@@ -82,7 +64,7 @@ impl LayerBase for AffineLayer {
     }
 }
 
-impl TransformLayer for AffineLayer {
+impl IntermediateLayer for AffineLayer {
     fn forward(&mut self, input: Array2<f32>) -> Array2<f32> {
         self.affine
             .forward(InputOfAffineLayer {
