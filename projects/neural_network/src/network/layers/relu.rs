@@ -5,7 +5,7 @@ use crate::layers::{
     relu::{InputOfReLULayer, OutputOfReLULayer, ReLU},
 };
 
-use super::layer::{LayerBase, TransformLayer};
+use super::layer::{LayerBase, IntermediateLayer};
 
 pub(crate) struct ReLULayer {
     relu: ReLU,
@@ -33,7 +33,7 @@ impl LayerBase for ReLULayer {
     }
 }
 
-impl TransformLayer for ReLULayer {
+impl IntermediateLayer for ReLULayer {
     fn forward(&mut self, input: Array2<f32>) -> Array2<f32> {
         self.relu
             .forward(InputOfReLULayer::from(input))

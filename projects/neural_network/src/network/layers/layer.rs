@@ -6,7 +6,7 @@ pub(crate) trait LayerBase {
     fn params_and_grads(&mut self) -> (&mut Self::Params, &Self::Params);
 }
 
-pub(crate) trait TransformLayer: LayerBase {
+pub(crate) trait IntermediateLayer: LayerBase {
     fn forward(&mut self, input: Array2<f32>) -> Array2<f32>;
     fn backward(&mut self, dout: Array2<f32>) -> Array2<f32>;
 }

@@ -7,7 +7,7 @@ use crate::layers::{
     layer::Layer,
 };
 
-use super::layer::{LayerBase, TransformLayer};
+use super::layer::{LayerBase, IntermediateLayer};
 
 pub(crate) struct AffineLayer {
     affine: Affine,
@@ -64,7 +64,7 @@ impl LayerBase for AffineLayer {
     }
 }
 
-impl TransformLayer for AffineLayer {
+impl IntermediateLayer for AffineLayer {
     fn forward(&mut self, input: Array2<f32>) -> Array2<f32> {
         self.affine
             .forward(InputOfAffineLayer {

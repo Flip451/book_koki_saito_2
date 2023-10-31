@@ -5,7 +5,7 @@ use crate::layers::{
     sigmoid::{InputOfSigmoidLayer, OutputOfSigmoidLayer, Sigmoid},
 };
 
-use super::layer::{LayerBase, TransformLayer};
+use super::layer::{LayerBase, IntermediateLayer};
 
 pub(crate) struct SigmoidLayer {
     sigmoid: Sigmoid,
@@ -33,7 +33,7 @@ impl LayerBase for SigmoidLayer {
     }
 }
 
-impl TransformLayer for SigmoidLayer {
+impl IntermediateLayer for SigmoidLayer {
     fn forward(&mut self, input: Array2<f32>) -> Array2<f32> {
         self.sigmoid
             .forward(InputOfSigmoidLayer::from(input))
