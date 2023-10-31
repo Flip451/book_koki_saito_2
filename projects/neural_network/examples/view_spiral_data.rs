@@ -1,23 +1,24 @@
 use anyhow::Result;
-use neural_network::dataset::spiral::point_with_class::{
-    ParamsForNewSeriesOfPointWithClass, SeriesOfPointWithClass,
-};
+use neural_network::dataset::imp::spiral::{InitParamsOfSpiralDataset, SpiralDataset};
 use plotters::prelude::*;
 
 const OUTPUT_FILE_NAME: &str = "view_spiral_data.png";
 
 fn main() -> Result<()> {
-    let props = ParamsForNewSeriesOfPointWithClass {
+    let params = InitParamsOfSpiralDataset {
         point_per_class: 100,
         number_of_class: 3,
         max_angle: 2.0 * std::f64::consts::PI,
+        batch_size: 30,
     };
-    let points = SeriesOfPointWithClass::new(props);
-    let series = points.get_points();
-    let series_1 = series.get(0).unwrap();
-    let series_2 = series.get(1).unwrap();
-    let series_3 = series.get(2).unwrap();
-    // let series_4 = series.get(3).unwrap();
+    let spiral_dataset = SpiralDataset::new(params);
+
+    let series = spiral_dataset.get_points();
+
+    let series_1 = series.get(&0).unwrap();
+    let series_2 = series.get(&1).unwrap();
+    let series_3 = series.get(&2).unwrap();
+    // let series_4 = series.get(&3).unwrap();
 
     let root = BitMapBackend::new(OUTPUT_FILE_NAME, (640, 480)).into_drawing_area();
     root.fill(&WHITE)?;
@@ -40,24 +41,42 @@ fn main() -> Result<()> {
         .label_style(FontDesc::new(FontFamily::SansSerif, 24., FontStyle::Normal))
         .draw()?;
 
-    chart
-        .draw_series(series_1.iter().map(|point| Circle::new(*point, 5, ShapeStyle::from(&CYAN).filled())))?;
-    chart
-        .draw_series(series_1.iter().map(|point| Circle::new(*point, 5, ShapeStyle::from(&BLACK))))?;
-        // .label("class 1")
-        // .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], ShapeStyle::from(&BLUE).filled()));
-    chart
-        .draw_series(series_2.iter().map(|point| Circle::new(*point, 5, ShapeStyle::from(&MAGENTA).filled())))?;
-    chart
-        .draw_series(series_2.iter().map(|point| Circle::new(*point, 5, ShapeStyle::from(&BLACK))))?;
-        // .label("class 2")
-        // .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], ShapeStyle::from(&RED).filled()));
-    chart
-        .draw_series(series_3.iter().map(|point| Circle::new(*point, 5, ShapeStyle::from(&YELLOW).filled())))?;
-    chart
-        .draw_series(series_3.iter().map(|point| Circle::new(*point, 5, ShapeStyle::from(&BLACK))))?;
-        // .label("class 3")
-        // .legend(|(x, y)| Circle::new((x + 10, y), 5, ShapeStyle::from(&GREEN).filled()));
+    chart.draw_series(
+        series_1
+            .iter()
+            .map(|point| Circle::new(*point, 5, ShapeStyle::from(&CYAN).filled())),
+    )?;
+    chart.draw_series(
+        series_1
+            .iter()
+            .map(|point| Circle::new(*point, 5, ShapeStyle::from(&BLACK))),
+    )?;
+    // .label("class 1")
+    // .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], ShapeStyle::from(&BLUE).filled()));
+    chart.draw_series(
+        series_2
+            .iter()
+            .map(|point| Circle::new(*point, 5, ShapeStyle::from(&MAGENTA).filled())),
+    )?;
+    chart.draw_series(
+        series_2
+            .iter()
+            .map(|point| Circle::new(*point, 5, ShapeStyle::from(&BLACK))),
+    )?;
+    // .label("class 2")
+    // .legend(|(x, y)| PathElement::new(vec![(x, y), (x + 20, y)], ShapeStyle::from(&RED).filled()));
+    chart.draw_series(
+        series_3
+            .iter()
+            .map(|point| Circle::new(*point, 5, ShapeStyle::from(&YELLOW).filled())),
+    )?;
+    chart.draw_series(
+        series_3
+            .iter()
+            .map(|point| Circle::new(*point, 5, ShapeStyle::from(&BLACK))),
+    )?;
+    // .label("class 3")
+    // .legend(|(x, y)| Circle::new((x + 10, y), 5, ShapeStyle::from(&GREEN).filled()));
     // chart
     //     .draw_series(series_4.iter().map(|point| Circle::new(*point, 5, ShapeStyle::from(&GREEN).filled())))?;
     // chart

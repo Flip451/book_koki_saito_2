@@ -3,13 +3,16 @@ use ndarray_rand::{rand_distr::Normal, RandomExt};
 
 use crate::optimizer::optimizer::Optimizer;
 
-use super::{layers::{
-    affine::{AffineLayer, ParamsOfAffineLayer},
-    layer::{LayerBase, LossLayer, TransformLayer},
-    relu::{ParamsOfReLULayer, ReLULayer},
-    sigmoid::{ParamsOfSigmoidLayer, SigmoidLayer},
-    softmax_cross_entropy::{ParamsOfSoftmaxCrossEntropyLayer, SoftmaxCrossEntropyLayer},
-}, network::Network};
+use super::{
+    layers::{
+        affine::{AffineLayer, ParamsOfAffineLayer},
+        layer::{LayerBase, LossLayer, TransformLayer},
+        relu::{ParamsOfReLULayer, ReLULayer},
+        sigmoid::{ParamsOfSigmoidLayer, SigmoidLayer},
+        softmax_cross_entropy::{ParamsOfSoftmaxCrossEntropyLayer, SoftmaxCrossEntropyLayer},
+    },
+    network::Network,
+};
 
 // ハイパーパラメータ
 const MEAN_DISTR: f64 = 0.;
@@ -26,8 +29,18 @@ pub struct SimpleNetwork {
     loss_layer: SoftmaxCrossEntropyLayer,
 }
 
+pub enum Activation {
+    Sigmoid,
+    ReLU,
+}
+
 impl SimpleNetwork {
-    pub fn new(input_size: usize, hidden_sizes: Vec<usize>, output_size: usize) -> Self {
+    pub fn new(
+        input_size: usize,
+        hidden_sizes: Vec<usize>,
+        output_size: usize,
+        activation: Activation,
+    ) -> Self {
         let distribution = Normal::new(MEAN_DISTR, STD_DEV_DISTR).unwrap();
 
         let mut layers = vec![];
@@ -44,7 +57,16 @@ impl SimpleNetwork {
                         b: bias,
                     })));
 
-                    layers.push(HiddenLayer::ReLU(ReLULayer::new(ParamsOfReLULayer())));
+                    match activation {
+                        Activation::Sigmoid => {
+                            layers.push(HiddenLayer::Sigmoid(SigmoidLayer::new(
+                                ParamsOfSigmoidLayer(),
+                            )));
+                        }
+                        Activation::ReLU => {
+                            layers.push(HiddenLayer::ReLU(ReLULayer::new(ParamsOfReLULayer())));
+                        }
+                    }
 
                     current_layer_size
                 });
@@ -76,7 +98,6 @@ impl SimpleNetwork {
         }
         params_and_grads
     }
-
 }
 
 impl Network for SimpleNetwork {
