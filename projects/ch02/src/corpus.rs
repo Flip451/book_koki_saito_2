@@ -1,16 +1,16 @@
 use std::collections::HashMap;
 
-type WordId = u32;
+pub(super) type WordId = usize;
 type Word = String;
 
-struct Corpus {
-    text: Vec<WordId>,
-    word_to_id: HashMap<Word, WordId>,
-    id_to_word: HashMap<WordId, Word>,
+pub(super) struct Corpus {
+    pub(super) text: Vec<WordId>,
+    pub(super) word_to_id: HashMap<Word, WordId>,
+    pub(super) id_to_word: HashMap<WordId, Word>,
 }
 
 impl Corpus {
-    fn new(text: &str) -> Self {
+    pub(super)fn new(text: &str) -> Self {
         let text = text.to_lowercase();
         let text = text.replace(".", " .");
         let words = text.split_whitespace();
