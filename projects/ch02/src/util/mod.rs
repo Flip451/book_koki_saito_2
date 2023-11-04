@@ -1,2 +1,2 @@
 pub(crate) mod cos_similarity;
-pub(crate) mod most_similar;
+pub mod most_similar;

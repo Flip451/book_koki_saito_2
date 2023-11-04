@@ -1,4 +1,4 @@
-mod corpus;
-pub(crate) mod util;
+pub mod corpus;
+pub mod util;
 
-pub(crate) mod word_matrix;
+pub mod word_matrix;

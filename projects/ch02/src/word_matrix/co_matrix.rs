@@ -4,10 +4,10 @@ use crate::corpus::Corpus;
 
 use super::WordMatrix;
 
-pub(crate) struct CoMatrix(Array2<f32>);
+pub struct CoMatrix(Array2<f32>);
 
 impl CoMatrix {
-    pub(crate) fn new(corpus: &Corpus, window_size: usize) -> Self {
+    pub fn new(corpus: &Corpus, window_size: usize) -> Self {
         let vocab_size = corpus.id_to_word.len();
         let mut matrix = Array2::<f32>::zeros((vocab_size, vocab_size));
 
@@ -48,7 +48,7 @@ impl CoMatrix {
     // N: コーパスの単語数（語彙数ではないことに注意）≒ C(*, *)の和
     // C(x, y): 単語xと単語yの共起回数
     // C(x): 単語xの出現回数 ≒ C(x, *)の和
-    fn ppmi(&self, verbose: bool, eps: Option<f32>) -> Array2<f32> {
+    pub fn ppmi(&self, verbose: bool, eps: Option<f32>) -> Array2<f32> {
         let eps = eps.unwrap_or(1e-8);
         let mut cnt = 0;
         let total = self.0.len();
@@ -64,7 +64,7 @@ impl CoMatrix {
 
             if verbose {
                 cnt += 1;
-                if cnt % 100 == 0 {
+                if cnt % 100_000 == 0 {
                     println!("PPMI: {}/{}", cnt, total);
                 }
             }

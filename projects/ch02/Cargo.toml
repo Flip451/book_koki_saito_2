@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 ndarray = "0.15.6"
 ndarray-linalg = { version = "0.16.0", features = ["openblas-system"] }
+rsvd = { path = "./rsvd/" }
 
 [dev-dependencies]
 approx = "0.5.1"

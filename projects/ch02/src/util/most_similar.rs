@@ -7,10 +7,10 @@ use crate::{
 
 use super::cos_similarity::cos_similarity;
 
-pub(crate) fn print_most_similar<T: WordMatrix>(
+pub fn print_most_similar<T: WordMatrix>(
     query: Word,
     corpus: &Corpus,
-    word_matrix: T,
+    word_matrix: &T,
     top: usize,
 ) {
     let stdout = io::stdout();
@@ -18,11 +18,11 @@ pub(crate) fn print_most_similar<T: WordMatrix>(
     most_similar(&mut stdout, query, corpus, word_matrix, top).unwrap();
 }
 
-pub(crate) fn most_similar<W: Write, T: WordMatrix>(
+fn most_similar<W: Write, T: WordMatrix>(
     w: &mut W,
     query: Word,
     corpus: &Corpus,
-    word_matrix: T,
+    word_matrix: &T,
     top: usize,
 ) -> io::Result<()> {
     if let None = corpus.word_to_id.get(&query) {
@@ -73,7 +73,7 @@ mod tests {
         let co_matrix = CoMatrix::new(&corpus, 1);
 
         let mut w = Vec::<u8>::new();
-        most_similar(&mut w, "you".to_string(), &corpus, co_matrix, 5).unwrap();
+        most_similar(&mut w, "you".to_string(), &corpus, &co_matrix, 5).unwrap();
 
         let expected = "\n[query] you\ngoodbye: 0.70710677\ni: 0.70710677\nhello: 0.70710677\nsay: 0\nand: 0\n";
         assert_eq!(String::from_utf8(w).unwrap(), expected);

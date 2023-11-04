@@ -3,14 +3,14 @@ use std::collections::HashMap;
 pub(super) type WordId = usize;
 pub(super) type Word = String;
 
-pub(super) struct Corpus {
+pub struct Corpus {
     pub(super) text: Vec<WordId>,
     pub(super) word_to_id: HashMap<Word, WordId>,
     pub(super) id_to_word: HashMap<WordId, Word>,
 }
 
 impl Corpus {
-    pub(super)fn new(text: &str) -> Self {
+    pub fn new(text: &str) -> Self {
         let text = text.to_lowercase();
         let text = text.replace(".", " .");
         let words = text.split_whitespace();
