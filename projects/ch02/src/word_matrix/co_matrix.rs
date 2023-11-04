@@ -37,7 +37,7 @@ impl CoMatrix {
 }
 
 impl WordMatrix for CoMatrix {
-    fn array2(&self) -> ArrayView2<f32> {
+    fn view(&self) -> ArrayView2<f32> {
         self.0.view()
     }
 }

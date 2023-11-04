@@ -33,12 +33,12 @@ pub(crate) fn most_similar<W: Write, T: WordMatrix>(
     writeln!(w, "\n[query] {}", query)?;
 
     let query_id = corpus.word_to_id[&query];
-    let array2 = word_matrix.array2();
-    let query_vec = array2.row(query_id);
+    let matrix = word_matrix.view();
+    let query_vec = matrix.row(query_id);
     let id_to_word = &corpus.id_to_word;
 
     let mut cos_similarities = word_matrix
-        .array2()
+        .view()
         .rows()
         .into_iter()
         .enumerate()
