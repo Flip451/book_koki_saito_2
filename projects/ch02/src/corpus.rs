@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 pub(super) type WordId = usize;
-type Word = String;
+pub(super) type Word = String;
 
 pub(super) struct Corpus {
     pub(super) text: Vec<WordId>,

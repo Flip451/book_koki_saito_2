@@ -1,3 +1,4 @@
 mod corpus;
-mod co_matrix;
 pub(crate) mod util;
+
+pub(crate) mod word_matrix;
