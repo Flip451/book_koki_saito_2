@@ -1,48 +1,59 @@
+use std::marker::PhantomData;
+
 use ndarray::{Array1, Array2, Axis};
+
+use crate::matrix::{matrix_one_dim::MatrixOneDim, matrix_two_dim::MatrixTwoDim};
 
 use super::layer::Layer;
 
-struct Sum {
+struct Sum<M2, M1> {
     n: Option<usize>,
+    ph2: PhantomData<M2>,
+    ph1: PhantomData<M1>,
 }
 
-struct InputOfSumLayer {
-    input: Array2<f32>,
+struct InputOfSumLayer<M2> {
+    input: M2,
 }
 
-struct DInputOfSumLayer {
-    dinput: Array2<f32>,
+struct DInputOfSumLayer<M2> {
+    dinput: M2,
 }
 
-struct OutputOfSumLayer {
-    out: Array1<f32>,
+struct OutputOfSumLayer<M1> {
+    out: M1,
 }
 
-impl Layer for Sum {
-    type Input = InputOfSumLayer;
-    type Output = OutputOfSumLayer;
-    type DInput = DInputOfSumLayer;
+impl<M2, M1> Layer<M2, M1> for Sum<M2, M1>
+where
+    M2: MatrixTwoDim<M1>,
+    M1: MatrixOneDim,
+{
+    type Input = InputOfSumLayer<M2>;
+    type Output = OutputOfSumLayer<M1>;
+    type DInput = DInputOfSumLayer<M2>;
 
     fn new() -> Self {
-        Self { n: None }
+        Self {
+            n: None,
+            ph2: PhantomData,
+            ph1: PhantomData,
+        }
     }
 
     fn forward(&mut self, input: Self::Input) -> Self::Output {
         let Self::Input { input } = input;
-        self.n = Some(input.shape()[0]);
+        self.n = Some(input.dim().0);
         Self::Output {
-            out: input.sum_axis(Axis(0)).to_owned(),
+            out: input.sum_axis_zero().to_owned(),
         }
     }
 
     fn backward(&self, dout: Self::Output) -> Self::DInput {
         assert!(self.n.is_some());
+        let len = dout.out.len();
         Self::DInput {
-            dinput: dout
-                .out
-                .broadcast((self.n.unwrap(), dout.out.len()))
-                .unwrap()
-                .to_owned(),
+            dinput: M2::broadcast_1d_array(dout.out, (self.n.unwrap(), len)),
         }
     }
 }
@@ -70,11 +81,7 @@ mod tests {
         let dinput = sum.backward(dout);
         assert_eq!(
             dinput.dinput,
-            array![
-                [10., 11., 12.],
-                [10., 11., 12.],
-                [10., 11., 12.]
-            ]
+            array![[10., 11., 12.], [10., 11., 12.], [10., 11., 12.]]
         );
     }
 }

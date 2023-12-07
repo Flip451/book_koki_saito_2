@@ -1,4 +1,5 @@
 use anyhow::Result;
+use ndarray::{Array1, Array2};
 use neural_network::dataset::imp::spiral::{InitParamsOfSpiralDataset, SpiralDataset};
 use plotters::prelude::*;
 
@@ -11,7 +12,7 @@ fn main() -> Result<()> {
         max_angle: 2.0 * std::f32::consts::PI,
         batch_size: 30,
     };
-    let spiral_dataset = SpiralDataset::new(params);
+    let spiral_dataset: SpiralDataset<Array2<f32>, Array1<f32>> = SpiralDataset::new(params);
 
     let series = spiral_dataset.get_points();
 

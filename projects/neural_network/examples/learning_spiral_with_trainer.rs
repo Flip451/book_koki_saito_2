@@ -1,3 +1,4 @@
+use ndarray::{Array2, Array1};
 use neural_network::{
     dataset::imp::spiral::{InitParamsOfSpiralDataset, SpiralDataset},
     network::{self, simple_network::Activation},
@@ -20,7 +21,7 @@ fn main() {
         point_per_class: 100,
         max_angle: 1. * std::f32::consts::PI,
     };
-    let mut dataset = SpiralDataset::new(params);
+    let mut dataset: SpiralDataset<Array2<f32>, Array1<f32>> = SpiralDataset::new(params);
 
     let network = network::simple_network::SimpleNetwork::new(
         2,

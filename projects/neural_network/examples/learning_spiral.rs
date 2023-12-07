@@ -1,5 +1,6 @@
 extern crate neural_network;
 
+use ndarray::{Array1, Array2};
 use neural_network::{
     dataset::{
         dataset::{Dataset, MiniBatch},
@@ -30,7 +31,7 @@ fn main() {
         max_angle: 1.5 * std::f32::consts::PI,
         batch_size: BATCH_SIZE,
     };
-    let mut spiral_dataset = SpiralDataset::new(config);
+    let mut spiral_dataset: SpiralDataset<Array2<f32>, Array1<f32>> = SpiralDataset::new(config);
 
     // 入力サイズの取得
     let input_size = 2;
@@ -57,6 +58,7 @@ fn main() {
         for MiniBatch {
             bundled_inputs,
             bundled_one_hot_labels,
+            ph: _,
         } in &mut spiral_dataset
         {
             network.forward(bundled_inputs, bundled_one_hot_labels);
@@ -68,6 +70,7 @@ fn main() {
         let MiniBatch {
             bundled_one_hot_labels,
             bundled_inputs,
+            ph: _,
         } = spiral_dataset.test_data();
 
         // テストデータのデータ数の取得

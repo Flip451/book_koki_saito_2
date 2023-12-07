@@ -5,50 +5,63 @@
     ∂L/∂B = N ∂L/∂Y where N = first dimension of X = X.shape[0]
 */
 
+use std::marker::PhantomData;
+
 use ndarray::{Array1, Array2, Axis};
+
+use crate::matrix::{matrix_one_dim::MatrixOneDim, matrix_two_dim::MatrixTwoDim};
 
 use super::layer::Layer;
 
-pub(crate) struct Affine {
-    x: Option<Array2<f32>>,
-    a: Option<Array2<f32>>,
+pub(crate) struct Affine<M2, M1> {
+    x: Option<M2>,
+    a: Option<M2>,
+    ph: PhantomData<M1>,
 }
 
-pub(crate) struct InputOfAffineLayer {
-    pub(crate) x: Array2<f32>,
-    pub(crate) a: Array2<f32>,
-    pub(crate) b: Array1<f32>,
+pub(crate) struct InputOfAffineLayer<M2, M1> {
+    pub(crate) x: M2,
+    pub(crate) a: M2,
+    pub(crate) b: M1,
 }
 
-pub(crate) struct DInputOfAffineLayer {
-    pub(crate) dx: Array2<f32>,
-    pub(crate) da: Array2<f32>,
-    pub(crate) db: Array1<f32>,
+pub(crate) struct DInputOfAffineLayer<M2, M1> {
+    pub(crate) dx: M2,
+    pub(crate) da: M2,
+    pub(crate) db: M1,
 }
 
-pub(crate) struct OutputOfAffineLayer {
-    out: Array2<f32>,
+pub(crate) struct OutputOfAffineLayer<M2> {
+    out: M2,
 }
 
-impl Into<Array2<f32>> for OutputOfAffineLayer {
-    fn into(self) -> Array2<f32> {
+impl<M2> OutputOfAffineLayer<M2> {
+    pub fn into_value(self) -> M2 {
         self.out
     }
 }
 
-impl From<Array2<f32>> for OutputOfAffineLayer {
-    fn from(value: Array2<f32>) -> Self {
+impl<M2> From<M2> for OutputOfAffineLayer<M2> {
+    fn from(value: M2) -> Self {
         Self { out: value }
     }
 }
 
-impl Layer for Affine {
-    type Input = InputOfAffineLayer;
-    type Output = OutputOfAffineLayer;
-    type DInput = DInputOfAffineLayer;
+impl<M2, M1> Layer<M2, M1> for Affine<M2, M1>
+where
+    M2: MatrixTwoDim<M1>,
+    M1: MatrixOneDim,
+{
+    type Input = InputOfAffineLayer<M2, M1>;
+    type Output = OutputOfAffineLayer<M2>;
+    type DInput = DInputOfAffineLayer<M2, M1>;
 
     fn new() -> Self {
-        Self { a: None, x: None }
+        Self {
+            a: None,
+            x: None,
+            ph: PhantomData,
+        }
     }
 
     fn forward(&mut self, input: Self::Input) -> Self::Output {
@@ -67,9 +80,9 @@ impl Layer for Affine {
         let a = self.a.as_ref().unwrap();
         let Self::Output { out: dout } = dout;
         Self::DInput {
-            dx: dout.dot(&a.t()).to_owned(),
-            da: x.t().dot(&dout).to_owned(),
-            db: dout.sum_axis(Axis(0)).to_owned(),
+            dx: dout.dot(&a.clone().t()).to_owned(),
+            da: x.clone().t().dot(&dout).to_owned(),
+            db: dout.sum_axis_zero().to_owned(),
         }
     }
 }

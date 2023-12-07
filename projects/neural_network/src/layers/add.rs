@@ -1,30 +1,38 @@
+use std::marker::PhantomData;
+
 use ndarray::Array2;
+
+use crate::matrix::{matrix_two_dim::MatrixTwoDim, matrix_one_dim::MatrixOneDim};
 
 use super::layer::Layer;
 
-struct Add {}
+struct Add<M2, M1>(PhantomData<M2>, PhantomData<M1>);
 
-struct InputOfAddLayer {
-    a: Array2<f32>,
-    b: Array2<f32>,
+struct InputOfAddLayer<M2> {
+    a: M2,
+    b: M2,
 }
 
-struct OutputOfAddLayer {
-    out: Array2<f32>,
+struct OutputOfAddLayer<M2> {
+    out: M2,
 }
 
-struct DInputOfAddLayer {
-    da: Array2<f32>,
-    db: Array2<f32>,
+struct DInputOfAddLayer<M2> {
+    da: M2,
+    db: M2,
 }
 
-impl Layer for Add {
-    type Input = InputOfAddLayer;
-    type Output = OutputOfAddLayer;
-    type DInput = DInputOfAddLayer;
+impl<M2, M1> Layer<M2, M1> for Add<M2, M1>
+where
+    M2: MatrixTwoDim<M1>,
+    M1: MatrixOneDim,
+{
+    type Input = InputOfAddLayer<M2>;
+    type Output = OutputOfAddLayer<M2>;
+    type DInput = DInputOfAddLayer<M2>;
 
     fn new() -> Self {
-        Self {}
+        Self(PhantomData, PhantomData)
     }
 
     fn forward(&mut self, input: Self::Input) -> Self::Output {
@@ -43,14 +51,14 @@ impl Layer for Add {
 
 #[cfg(test)]
 mod tests {
-    use ndarray::array;
+    use ndarray::{array, Array1};
 
     use super::*;
 
     #[test]
     fn test_add_layer() {
         // z = x + y となっていることををチェック
-        let mut add = Add::new();
+        let mut add = Add::<Array2<f32>, Array1<f32>>::new();
         let a = array![[1., 2., 3.], [4., 5., 6.]];
         let b = array![[7., 8., 9.], [10., 11., 12.]];
         let input = InputOfAddLayer { a, b };

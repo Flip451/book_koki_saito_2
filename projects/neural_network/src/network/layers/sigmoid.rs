@@ -1,21 +1,28 @@
 use ndarray::Array2;
 
-use crate::layers::{
-    layer::Layer,
-    sigmoid::{InputOfSigmoidLayer, OutputOfSigmoidLayer, Sigmoid},
+use crate::{
+    layers::{
+        layer::Layer,
+        sigmoid::{InputOfSigmoidLayer, OutputOfSigmoidLayer, Sigmoid},
+    },
+    matrix::{matrix_one_dim::MatrixOneDim, matrix_two_dim::MatrixTwoDim},
 };
 
-use super::layer::{LayerBase, IntermediateLayer};
+use super::layer::{IntermediateLayer, LayerBase};
 
-pub(crate) struct SigmoidLayer {
-    sigmoid: Sigmoid,
+pub(crate) struct SigmoidLayer<M2, M1> {
+    sigmoid: Sigmoid<M2, M1>,
     params: ParamsOfSigmoidLayer,
     grads: ParamsOfSigmoidLayer,
 }
 
 pub(crate) struct ParamsOfSigmoidLayer();
 
-impl LayerBase for SigmoidLayer {
+impl<M2, M1> LayerBase for SigmoidLayer<M2, M1>
+where
+    M2: MatrixTwoDim<M1>,
+    M1: MatrixOneDim,
+{
     type Params = ParamsOfSigmoidLayer;
 
     fn new(params: Self::Params) -> Self {
@@ -33,16 +40,20 @@ impl LayerBase for SigmoidLayer {
     }
 }
 
-impl IntermediateLayer for SigmoidLayer {
-    fn forward(&mut self, input: Array2<f32>) -> Array2<f32> {
+impl<M2, M1> IntermediateLayer<M2, M1> for SigmoidLayer<M2, M1>
+where
+    M2: MatrixTwoDim<M1>,
+    M1: MatrixOneDim,
+{
+    fn forward(&mut self, input: M2) -> M2 {
         self.sigmoid
             .forward(InputOfSigmoidLayer::from(input))
-            .into()
+            .into_value()
     }
 
-    fn backward(&mut self, dout: Array2<f32>) -> Array2<f32> {
+    fn backward(&mut self, dout: M2) -> M2 {
         self.sigmoid
             .backward(OutputOfSigmoidLayer::from(dout))
-            .into()
+            .into_value()
     }
 }

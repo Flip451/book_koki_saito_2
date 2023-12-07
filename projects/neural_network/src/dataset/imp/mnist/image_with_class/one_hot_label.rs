@@ -1,16 +1,21 @@
 use ndarray::Array1;
 
-pub(super) struct OneHotLabel(Array1<f32>);
+use crate::matrix::matrix_one_dim::MatrixOneDim;
 
-impl OneHotLabel {
+pub(super) struct OneHotLabel<M1>(M1);
+
+impl<M1> OneHotLabel<M1>
+where
+    M1: MatrixOneDim,
+{
     pub(super) fn new(class: usize, number_of_class: usize) -> Self {
         assert!(class < number_of_class);
         let mut label = vec![0.; number_of_class];
         label[class] = 1.;
-        Self(Array1::from(label))
+        Self(M1::from(label))
     }
 
-    pub(super) fn get_array(&self) -> Array1<f32> {
+    pub(super) fn get_array(&self) -> M1 {
         self.0.clone()
     }
 }

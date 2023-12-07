@@ -13,22 +13,27 @@
     ∂L/∂(x_i) = y_i - t_i
 */
 
+use std::marker::PhantomData;
+
 use ndarray::{Array1, Array2, ArrayView1};
+
+use crate::matrix::{matrix_one_dim::MatrixOneDim, matrix_two_dim::MatrixTwoDim};
 
 use super::layer::Layer;
 
-pub(crate) struct SoftmaxCrossEntropy {
-    y: Option<Array2<f32>>,
-    t: Option<Array2<f32>>,
+pub(crate) struct SoftmaxCrossEntropy<M2, M1> {
+    y: Option<M2>,
+    t: Option<M2>,
+    ph: PhantomData<M1>,
 }
 
-pub(crate) struct InputOfSoftmaxCrossEntropyLayer {
-    input: Array2<f32>,
-    t: Array2<f32>,
+pub(crate) struct InputOfSoftmaxCrossEntropyLayer<M2> {
+    input: M2,
+    t: M2,
 }
 
-impl InputOfSoftmaxCrossEntropyLayer {
-    pub(crate) fn from(input: Array2<f32>, one_hot_labels: Array2<f32>) -> Self {
+impl<M2> InputOfSoftmaxCrossEntropyLayer<M2> {
+    pub(crate) fn from(input: M2, one_hot_labels: M2) -> Self {
         Self {
             input,
             t: one_hot_labels,
@@ -36,13 +41,19 @@ impl InputOfSoftmaxCrossEntropyLayer {
     }
 }
 
-pub(crate) struct DInputOfSoftmaxCrossEntropyLayer {
-    dinput: Array2<f32>,
+pub(crate) struct DInputOfSoftmaxCrossEntropyLayer<M2> {
+    dinput: M2,
 }
 
-impl Into<Array2<f32>> for DInputOfSoftmaxCrossEntropyLayer {
-    fn into(self) -> Array2<f32> {
+impl<M2> DInputOfSoftmaxCrossEntropyLayer<M2> {
+    pub fn into_value(self) -> M2 {
         self.dinput
+    }
+}
+
+impl<M2> From<M2> for DInputOfSoftmaxCrossEntropyLayer<M2> {
+    fn from(value: M2) -> Self {
+        Self { dinput: value }
     }
 }
 
@@ -50,8 +61,8 @@ pub(crate) struct OutputOfSoftmaxCrossEntropyLayer {
     out: f32,
 }
 
-impl Into<f32> for OutputOfSoftmaxCrossEntropyLayer {
-    fn into(self) -> f32 {
+impl OutputOfSoftmaxCrossEntropyLayer {
+    pub fn into_value(self) -> f32 {
         self.out
     }
 }
@@ -64,43 +75,49 @@ impl From<f32> for OutputOfSoftmaxCrossEntropyLayer {
 
 const TINY_DELTA: f32 = 0.00_000_000_01;
 
-impl SoftmaxCrossEntropy {
-    fn softmax_1d(input: ArrayView1<f32>) -> Array1<f32> {
-        let max = input.iter().max_by(|&a, &b| a.total_cmp(b)).unwrap();
-        let exp = input.mapv(|x| (x - max).exp());
+impl<M2, M1> SoftmaxCrossEntropy<M2, M1>
+where
+    M2: MatrixTwoDim<M1>,
+    M1: MatrixOneDim,
+{
+    fn softmax_1d(input: M1) -> M1 {
+        let max = input.max_value();
+        let exp = input.mapv_into(|x| (x - max).exp());
         let sum = exp.sum();
         exp / sum
     }
 
-    fn softmax(input: Array2<f32>) -> Array2<f32> {
-        let (height, width) = input.dim();
-        let flattened: Array1<f32> = input
-            .rows()
-            .into_iter()
-            .flat_map(|row| Self::softmax_1d(row))
-            .collect();
-        flattened.into_shape((height, width)).unwrap()
+    fn softmax(input: M2) -> M2 {
+        input.mapv_into_for_each_rows(Self::softmax_1d)
     }
 
-    fn cross_entropy(input: Array2<f32>, t: Array2<f32>) -> f32 {
+    fn cross_entropy(input: M2, t: M2) -> f32 {
         assert_eq!(input.dim(), t.dim());
-        let batch_size = input.shape()[0];
+        let batch_size = input.dim().0;
         input
-            .into_iter()
-            .zip(t)
-            .map(|(input, t)| -t * (if input == 0. { TINY_DELTA } else { input }).ln())
-            .sum::<f32>()
+            .zip_with(&t, |&input, &t| {
+                -t * (if input == 0_f32 { TINY_DELTA } else { input }).ln()
+            })
+            .sum()
             / batch_size as f32
     }
 }
 
-impl Layer for SoftmaxCrossEntropy {
-    type Input = InputOfSoftmaxCrossEntropyLayer;
+impl<M2, M1> Layer<M2, M1> for SoftmaxCrossEntropy<M2, M1>
+where
+    M2: MatrixTwoDim<M1>,
+    M1: MatrixOneDim,
+{
+    type Input = InputOfSoftmaxCrossEntropyLayer<M2>;
     type Output = OutputOfSoftmaxCrossEntropyLayer;
-    type DInput = DInputOfSoftmaxCrossEntropyLayer;
+    type DInput = DInputOfSoftmaxCrossEntropyLayer<M2>;
 
     fn new() -> Self {
-        Self { y: None, t: None }
+        Self {
+            y: None,
+            t: None,
+            ph: PhantomData,
+        }
     }
 
     fn forward(&mut self, input: Self::Input) -> Self::Output {
@@ -121,9 +138,9 @@ impl Layer for SoftmaxCrossEntropy {
         let t = self.t.as_ref().unwrap();
         assert_eq!(y.dim(), t.dim());
 
-        let batch_size = y.shape()[0] as f32;
+        let batch_size = y.dim().0 as f32;
         Self::DInput {
-            dinput: (y - t) / batch_size,
+            dinput: (y.clone() - t.clone()) / batch_size,
         }
     }
 }
