@@ -1,29 +1,35 @@
 use anyhow::Result;
 use plotters::prelude::*;
-use std::{iter::zip, time::Instant};
+use std::{iter::zip, time::Instant, marker::PhantomData};
 
 use crate::{
     dataset::dataset::{Dataset, MiniBatch},
+    matrix::{matrix_one_dim::MatrixOneDim, matrix_two_dim::MatrixTwoDim},
     network::network::Network,
     optimizer::optimizer::Optimizer,
 };
 
-pub struct Trainer<Net, Opt>
+pub struct Trainer<Net, Opt, M2, M1>
 where
-    Net: Network,
+    Net: Network<M2, M1>,
     Opt: Optimizer,
+    M2: MatrixTwoDim<M1>,
+    M1: MatrixOneDim,
 {
     network: Net,
     optimizer: Opt,
     loss_list: Vec<f32>,
     acc_list: Vec<f32>,
     eval_interval: Option<usize>,
+    phantom: PhantomData<(M2, M1)>,
 }
 
-impl<Net, Opt> Trainer<Net, Opt>
+impl<Net, Opt, M2, M1> Trainer<Net, Opt, M2, M1>
 where
-    Net: Network,
+    Net: Network<M2, M1>,
     Opt: Optimizer,
+    M2: MatrixTwoDim<M1>,
+    M1: MatrixOneDim,
 {
     pub fn new(network: Net, optimizer: Opt) -> Self {
         Self {
@@ -32,10 +38,11 @@ where
             loss_list: Vec::new(),
             acc_list: Vec::new(),
             eval_interval: None,
+            phantom: PhantomData,
         }
     }
 
-    pub fn fit<D: Dataset>(
+    pub fn fit<D: Dataset<M2, M1>>(
         &mut self,
         dataset: &mut D,
         max_epoch: usize,
@@ -69,6 +76,7 @@ where
                 MiniBatch {
                     bundled_inputs,
                     bundled_one_hot_labels,
+                    ph: _,
                 },
             ) in dataset.enumerate()
             {
@@ -90,7 +98,11 @@ where
                     // 時間、イテレーション、損失の表示
                     println!(
                         "| epoch {:5} | iter {:5} / {:5} | time {:.5} [s] | loss {:.5}",
-                        epoch + 1, iters, max_iter, elapsed_time, loss_avg
+                        epoch + 1,
+                        iters,
+                        max_iter,
+                        elapsed_time,
+                        loss_avg
                     );
 
                     // 損失の履歴の更新
@@ -111,11 +123,12 @@ where
         }
     }
 
-    fn accuracy<D: Dataset>(&mut self, dataset: &D) -> f32 {
+    fn accuracy<D: Dataset<M2, M1>>(&mut self, dataset: &D) -> f32 {
         // テストデータでの評価
         let MiniBatch {
             bundled_one_hot_labels,
             bundled_inputs,
+            ph: _,
         } = dataset.test_data();
 
         // テストデータのデータ数の取得
@@ -125,19 +138,10 @@ where
         let predict = self.network.predict(bundled_inputs);
 
         // 正解数の計算
-        let correct_number = predict
-            .outer_iter()
-            .zip(bundled_one_hot_labels.outer_iter())
-            .filter(|(predict, one_hot_label)| {
-                let predict = predict
-                    .iter()
-                    .enumerate()
-                    .max_by(|(_, a), (_, b)| a.partial_cmp(b).unwrap())
-                    .map(|(index, _)| index)
-                    .unwrap();
-                one_hot_label[predict] == 1.
-            })
-            .count();
+        let predict = predict.mapv_into_for_each_rows(|predict| {
+            predict.into_one_hot()
+        });
+        let correct_number = (predict * bundled_one_hot_labels).sum();
 
         // 正解率の計算
         let accuracy_rate = correct_number as f32 / n as f32;
@@ -150,10 +154,22 @@ where
     }
 
     pub fn plot_loss(&self, out_path: &'static str) -> Result<()> {
-        Self::plot(&self.loss_list, out_path, &format!("iteration (x{:?})", self.eval_interval.unwrap()), "loss", "Loss")
+        Self::plot(
+            &self.loss_list,
+            out_path,
+            &format!("iteration (x{:?})", self.eval_interval.unwrap()),
+            "loss",
+            "Loss",
+        )
     }
 
-    fn plot(list: &Vec<f32>, out_path: &str, x_label: &str, y_label: &str, caption: &str) -> Result<()> {
+    fn plot(
+        list: &Vec<f32>,
+        out_path: &str,
+        x_label: &str,
+        y_label: &str,
+        caption: &str,
+    ) -> Result<()> {
         let max_x: f32 = list.len() as f32;
         let max_y: f32 = *list.iter().max_by(|&a, &b| a.total_cmp(b)).unwrap();
         let x = (0..max_x as usize).map(|x| x as f32);

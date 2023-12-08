@@ -7,61 +7,76 @@
             { 0      if x <= 0
 */
 
-use ndarray::{Array2, Array1};
+use std::marker::PhantomData;
+
+use crate::matrix::{matrix_one_dim::MatrixOneDim, matrix_two_dim::MatrixTwoDim};
 
 use super::layer::Layer;
 
-pub(crate) struct ReLU {
-    filter: Option<Array2<bool>>,
+pub(crate) struct ReLU<M2, M1> {
+    filter: Option<M2>,
+    ph: PhantomData<M1>,
 }
 
-pub(crate) struct InputOfReLULayer {
-    input: Array2<f32>,
+pub(crate) struct InputOfReLULayer<M2> {
+    input: M2,
 }
 
-impl From<Array2<f32>> for InputOfReLULayer {
-    fn from(value: Array2<f32>) -> Self {
+impl<M2> From<M2> for InputOfReLULayer<M2> {
+    fn from(value: M2) -> Self {
         Self { input: value }
     }
 }
 
-pub(crate) struct DInputOfReLULayer {
-    dinput: Array2<f32>,
+pub(crate) struct DInputOfReLULayer<M2> {
+    dinput: M2,
 }
 
-impl Into<Array2<f32>> for DInputOfReLULayer {
-    fn into(self) -> Array2<f32> {
+impl<M2> DInputOfReLULayer<M2> {
+    pub fn into_value(self) -> M2 {
         self.dinput
     }
 }
 
-pub(crate) struct OutputOfReLULayer {
-    out: Array2<f32>,
-}
-
-impl From<Array2<f32>> for OutputOfReLULayer {
-    fn from(value: Array2<f32>) -> Self {
-        Self { out: value }
+impl<M2> From<M2> for DInputOfReLULayer<M2> {
+    fn from(value: M2) -> Self {
+        Self { dinput: value }
     }
 }
 
-impl Into<Array2<f32>> for OutputOfReLULayer {
-    fn into(self) -> Array2<f32> {
+pub(crate) struct OutputOfReLULayer<M2> {
+    out: M2,
+}
+
+impl<M2> OutputOfReLULayer<M2> {
+    pub fn into_value(self) -> M2 {
         self.out
     }
 }
 
-impl Layer for ReLU {
-    type Input = InputOfReLULayer;
-    type Output = OutputOfReLULayer;
-    type DInput = DInputOfReLULayer;
+impl<M2> From<M2> for OutputOfReLULayer<M2> {
+    fn from(value: M2) -> Self {
+        Self { out: value }
+    }
+}
+
+impl<M2, M1> Layer<M2, M1> for ReLU<M2, M1>
+where
+    M2: MatrixTwoDim<M1>,
+    M1: MatrixOneDim,
+{
+    type Input = InputOfReLULayer<M2>;
+    type Output = OutputOfReLULayer<M2>;
+    type DInput = DInputOfReLULayer<M2>;
     fn new() -> Self {
-        Self { filter: None }
+        Self { filter: None, ph: PhantomData }
     }
 
     fn forward(&mut self, input: Self::Input) -> Self::Output {
         let Self::Input { input } = input;
-        let filter = input.clone().mapv_into_any(|x| if x > 0. { true } else { false });
+        let filter = input
+            .clone()
+            .mapv_into(|x| if x > 0. { 1. } else { 0. });
         self.filter = Some(filter);
         let out = input.mapv_into(|x| if x > 0. { x } else { 0. });
         Self::Output { out }
@@ -71,22 +86,13 @@ impl Layer for ReLU {
         assert!(self.filter.is_some());
         let filter = self.filter.as_ref().unwrap();
         let Self::Output { out: dout } = dout;
-
-        let dinput_1d: Array1<f32> = dout.into_iter().zip(filter).map(|(dout, filter)| {
-            if *filter {
-                dout
-            } else {
-                0.
-            }
-        }).collect();
-        let dinput = dinput_1d.into_shape((filter.shape()[0], filter.shape()[1])).unwrap();
+        let dinput = dout * filter.clone();
         Self::DInput { dinput }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use approx::assert_abs_diff_eq;
     use ndarray::array;
 
     use super::*;

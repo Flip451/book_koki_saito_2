@@ -1,21 +1,26 @@
-use ndarray::Array2;
-
-use crate::layers::{
-    layer::Layer,
-    relu::{InputOfReLULayer, OutputOfReLULayer, ReLU},
+use crate::{
+    layers::{
+        layer::Layer,
+        relu::{InputOfReLULayer, OutputOfReLULayer, ReLU},
+    },
+    matrix::{matrix_one_dim::MatrixOneDim, matrix_two_dim::MatrixTwoDim},
 };
 
-use super::layer::{LayerBase, IntermediateLayer};
+use super::layer::{IntermediateLayer, LayerBase};
 
-pub(crate) struct ReLULayer {
-    relu: ReLU,
+pub(crate) struct ReLULayer<M2, M1> {
+    relu: ReLU<M2, M1>,
     params: ParamsOfReLULayer,
     grads: ParamsOfReLULayer,
 }
 
 pub(crate) struct ParamsOfReLULayer();
 
-impl LayerBase for ReLULayer {
+impl<M2, M1> LayerBase for ReLULayer<M2, M1>
+where
+    M2: MatrixTwoDim<M1>,
+    M1: MatrixOneDim,
+{
     type Params = ParamsOfReLULayer;
 
     fn new(params: Self::Params) -> Self {
@@ -33,16 +38,16 @@ impl LayerBase for ReLULayer {
     }
 }
 
-impl IntermediateLayer for ReLULayer {
-    fn forward(&mut self, input: Array2<f32>) -> Array2<f32> {
-        self.relu
-            .forward(InputOfReLULayer::from(input))
-            .into()
+impl<M2, M1> IntermediateLayer<M2, M1> for ReLULayer<M2, M1>
+where
+    M2: MatrixTwoDim<M1>,
+    M1: MatrixOneDim,
+{
+    fn forward(&mut self, input: M2) -> M2 {
+        self.relu.forward(InputOfReLULayer::from(input)).into_value()
     }
 
-    fn backward(&mut self, dout: Array2<f32>) -> Array2<f32> {
-        self.relu
-            .backward(OutputOfReLULayer::from(dout))
-            .into()
+    fn backward(&mut self, dout: M2) -> M2 {
+        self.relu.backward(OutputOfReLULayer::from(dout)).into_value()
     }
 }

@@ -1,17 +1,21 @@
 mod point_with_class;
 
-use std::{collections::HashMap, f32::consts::PI};
+use std::{collections::HashMap, f32::consts::PI, marker::PhantomData};
 
 use rand::seq::SliceRandom;
 
-use crate::dataset::dataset::{Dataset, MiniBatch};
+use crate::{
+    dataset::dataset::{Dataset, MiniBatch},
+    matrix::{matrix_one_dim::MatrixOneDim, matrix_two_dim::MatrixTwoDim},
+};
 
 use self::point_with_class::PointWithClass;
 
-pub struct SpiralDataset {
-    points: Vec<PointWithClass>,
+pub struct SpiralDataset<M2, M1> {
+    points: Vec<PointWithClass<M1>>,
     cursor: usize,
     batch_size: usize,
+    phantom: PhantomData<M2>,
 }
 
 pub struct InitParamsOfSpiralDataset {
@@ -21,7 +25,11 @@ pub struct InitParamsOfSpiralDataset {
     pub max_angle: f32,
 }
 
-impl SpiralDataset {
+impl<M2, M1> SpiralDataset<M2, M1>
+where
+    M2: MatrixTwoDim<M1>,
+    M1: MatrixOneDim,
+{
     pub fn new(params: InitParamsOfSpiralDataset) -> Self {
         let InitParamsOfSpiralDataset {
             batch_size,
@@ -49,6 +57,7 @@ impl SpiralDataset {
             points,
             cursor: 0,
             batch_size,
+            phantom: PhantomData,
         }
     }
 
@@ -62,19 +71,27 @@ impl SpiralDataset {
     }
 }
 
-impl Dataset for SpiralDataset {
+impl<M2, M1> Dataset<M2, M1> for SpiralDataset<M2, M1>
+where
+    M2: MatrixTwoDim<M1>,
+    M1: MatrixOneDim,
+{
     fn shuffle_and_reset_cursor(&mut self) {
         self.points.shuffle(&mut rand::thread_rng());
         self.cursor = 0;
     }
 
-    fn test_data(&self) -> MiniBatch {
+    fn test_data(&self) -> MiniBatch<M2, M1> {
         MiniBatch::from_points(&self.points)
     }
 }
 
-impl Iterator for SpiralDataset {
-    type Item = MiniBatch;
+impl<M2, M1> Iterator for SpiralDataset<M2, M1>
+where
+    M2: MatrixTwoDim<M1>,
+    M1: MatrixOneDim,
+{
+    type Item = MiniBatch<M2, M1>;
 
     fn next(&mut self) -> Option<Self::Item> {
         let number_of_points = self.points.len();
@@ -90,7 +107,11 @@ impl Iterator for SpiralDataset {
     }
 }
 
-impl  ExactSizeIterator for SpiralDataset {
+impl<M2, M1> ExactSizeIterator for SpiralDataset<M2, M1>
+where
+    M2: MatrixTwoDim<M1>,
+    M1: MatrixOneDim,
+{
     fn len(&self) -> usize {
         self.points.len() / self.batch_size
     }

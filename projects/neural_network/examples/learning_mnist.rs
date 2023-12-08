@@ -1,5 +1,6 @@
 extern crate neural_network;
 
+use ndarray::{Array1, Array2};
 use neural_network::{
     dataset::{
         dataset::{Dataset, MiniBatch},
@@ -29,7 +30,7 @@ fn main() {
         test_image_file_path: "data/t10k-images-idx3-ubyte",
         test_label_file_path: "data/t10k-labels-idx1-ubyte",
     };
-    let mut mnist_dataset = MnistDataset::new(params);
+    let mut mnist_dataset: MnistDataset<Array2<f32>, Array1<f32>> = MnistDataset::new(params);
 
     // 入力サイズの取得
     let input_size = 28 * 28;
@@ -54,6 +55,7 @@ fn main() {
         for MiniBatch {
             bundled_inputs,
             bundled_one_hot_labels,
+            ph: _,
         } in &mut mnist_dataset
         {
             network.forward(bundled_inputs, bundled_one_hot_labels);
@@ -65,6 +67,7 @@ fn main() {
         let MiniBatch {
             bundled_one_hot_labels,
             bundled_inputs,
+            ph: _,
         } = mnist_dataset.test_data();
 
         // テストデータのデータ数の取得

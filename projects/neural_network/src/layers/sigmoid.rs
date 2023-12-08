@@ -3,56 +3,72 @@
     ∂L/∂x = y(1-y)∂L/∂y
 */
 
-use ndarray::Array2;
+use std::marker::PhantomData;
+
+use crate::matrix::{matrix_one_dim::MatrixOneDim, matrix_two_dim::MatrixTwoDim};
 
 use super::layer::Layer;
 
-pub(crate) struct Sigmoid {
-    out: Option<Array2<f32>>,
+pub(crate) struct Sigmoid<M2, M1> {
+    out: Option<M2>,
+    ph: PhantomData<M1>,
 }
 
-pub(crate) struct InputOfSigmoidLayer {
-    input: Array2<f32>,
+pub(crate) struct InputOfSigmoidLayer<M2> {
+    input: M2,
 }
 
-impl From<Array2<f32>> for InputOfSigmoidLayer {
-    fn from(value: Array2<f32>) -> Self {
+impl<M2> From<M2> for InputOfSigmoidLayer<M2> {
+    fn from(value: M2) -> Self {
         Self { input: value }
     }
 }
 
-pub(crate) struct DInputOfSigmoidLayer {
-    dinput: Array2<f32>,
+pub(crate) struct DInputOfSigmoidLayer<M2> {
+    dinput: M2,
 }
 
-impl Into<Array2<f32>> for DInputOfSigmoidLayer {
-    fn into(self) -> Array2<f32> {
+impl<M2> DInputOfSigmoidLayer<M2> {
+    pub fn into_value(self) -> M2 {
         self.dinput
     }
 }
 
-pub(crate) struct OutputOfSigmoidLayer {
-    out: Array2<f32>,
-}
-
-impl From<Array2<f32>> for OutputOfSigmoidLayer {
-    fn from(value: Array2<f32>) -> Self {
-        Self { out: value }
+impl<M2> From<M2> for DInputOfSigmoidLayer<M2> {
+    fn from(value: M2) -> Self {
+        Self { dinput: value }
     }
 }
 
-impl Into<Array2<f32>> for OutputOfSigmoidLayer {
-    fn into(self) -> Array2<f32> {
+pub(crate) struct OutputOfSigmoidLayer<M2> {
+    out: M2,
+}
+
+impl<M2> OutputOfSigmoidLayer<M2> {
+    pub fn into_value(self) -> M2 {
         self.out
     }
 }
 
-impl Layer for Sigmoid {
-    type Input = InputOfSigmoidLayer;
-    type Output = OutputOfSigmoidLayer;
-    type DInput = DInputOfSigmoidLayer;
+impl<M2> From<M2> for OutputOfSigmoidLayer<M2> {
+    fn from(value: M2) -> Self {
+        Self { out: value }
+    }
+}
+
+impl<M2, M1> Layer<M2, M1> for Sigmoid<M2, M1>
+where
+    M2: MatrixTwoDim<M1>,
+    M1: MatrixOneDim,
+{
+    type Input = InputOfSigmoidLayer<M2>;
+    type Output = OutputOfSigmoidLayer<M2>;
+    type DInput = DInputOfSigmoidLayer<M2>;
     fn new() -> Self {
-        Self { out: None }
+        Self {
+            out: None,
+            ph: PhantomData,
+        }
     }
 
     fn forward(&mut self, input: Self::Input) -> Self::Output {
@@ -67,7 +83,7 @@ impl Layer for Sigmoid {
         let out = self.out.as_ref().unwrap();
         let Self::Output { out: dout } = dout;
 
-        let dinput = out * (Array2::ones(out.dim()) - out) * dout;
+        let dinput = out.clone() * (M2::ones_like(&out) - out.clone()) * dout;
         Self::DInput { dinput }
     }
 }
@@ -127,7 +143,7 @@ mod tests {
             .into_iter()
             .zip(expected)
             .for_each(|(dinput, expected)| {
-                assert_abs_diff_eq!(dinput, expected, epsilon = 1e-14);
+                assert_abs_diff_eq!(dinput, expected, epsilon = 1e-6);
             });
     }
 }

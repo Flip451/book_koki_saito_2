@@ -1,34 +1,38 @@
-use ndarray::Array2;
+use std::marker::PhantomData;
+
+use crate::matrix::{matrix_one_dim::MatrixOneDim, matrix_two_dim::MatrixTwoDim};
 
 use super::layer::Layer;
 
-struct Branch {}
+struct Branch<M2, M1>(PhantomData<M2>, PhantomData<M1>);
 
-struct InputOfBranchLayer {
-    input: Array2<f32>,
+struct InputOfBranchLayer<M2> {
+    input: M2,
 }
 
-struct DInputOfBranchLayer {
-    dinput: Array2<f32>
+struct DInputOfBranchLayer<M2> {
+    dinput: M2,
 }
 
-struct OutputOfBranchLayer {
-    a: Array2<f32>,
-    b: Array2<f32>,
+struct OutputOfBranchLayer<M2> {
+    a: M2,
+    b: M2,
 }
 
-impl Layer for Branch
+impl<M2, M1> Layer<M2, M1> for Branch<M2, M1>
+where
+    M2: MatrixTwoDim<M1>,
+    M1: MatrixOneDim,
 {
-    type Input = InputOfBranchLayer;
-    type Output = OutputOfBranchLayer;
-    type DInput = DInputOfBranchLayer;
+    type Input = InputOfBranchLayer<M2>;
+    type Output = OutputOfBranchLayer<M2>;
+    type DInput = DInputOfBranchLayer<M2>;
 
     fn new() -> Self {
-        Self {}
+        Self(PhantomData, PhantomData)
     }
 
-    fn forward(&mut self, input: Self::Input) -> Self::Output
-    {
+    fn forward(&mut self, input: Self::Input) -> Self::Output {
         Self::Output {
             a: input.input.clone(),
             b: input.input,

@@ -1,45 +1,58 @@
-use ndarray::{Array1, Array2, Axis};
+use std::marker::PhantomData;
+
+use crate::matrix::{matrix_one_dim::MatrixOneDim, matrix_two_dim::MatrixTwoDim};
 
 use super::layer::Layer;
 
-struct Repeat {
+struct Repeat<M2, M1> {
     n: Option<usize>,
+    ph2: PhantomData<M2>,
+    ph1: PhantomData<M1>,
 }
 
-struct InputOfRepeatLayer {
-    input: Array1<f32>,
+struct InputOfRepeatLayer<M1> {
+    input: M1,
     n: usize,
 }
 
-struct DInputOfRepeatLayer {
-    dinput: Array1<f32>,
+struct DInputOfRepeatLayer<M1> {
+    dinput: M1,
 }
 
-struct OutputOfRepeatLayer {
-    out: Array2<f32>,
+struct OutputOfRepeatLayer<M2> {
+    out: M2,
 }
 
-impl Layer for Repeat {
-    type Input = InputOfRepeatLayer;
-    type Output = OutputOfRepeatLayer;
-    type DInput = DInputOfRepeatLayer;
+impl<M2, M1> Layer<M2, M1> for Repeat<M2, M1>
+where
+    M2: MatrixTwoDim<M1>,
+    M1: MatrixOneDim,
+{
+    type Input = InputOfRepeatLayer<M1>;
+    type Output = OutputOfRepeatLayer<M2>;
+    type DInput = DInputOfRepeatLayer<M1>;
 
     fn new() -> Self {
-        Self { n: None }
+        Self {
+            n: None,
+            ph2: PhantomData,
+            ph1: PhantomData,
+        }
     }
 
     fn forward(&mut self, input: Self::Input) -> Self::Output {
         let Self::Input { input, n } = input;
         self.n = Some(n);
+        let len = input.len();
         Self::Output {
-            out: input.broadcast((n, input.len())).unwrap().to_owned(),
+            out: M2::broadcast_1d_array(input, (n, len)),
         }
     }
 
     fn backward(&self, dout: Self::Output) -> Self::DInput {
         assert!(self.n.is_some());
         Self::DInput {
-            dinput: dout.out.sum_axis(Axis(0)).to_owned(),
+            dinput: dout.out.sum_axis_zero().to_owned(),
         }
     }
 }

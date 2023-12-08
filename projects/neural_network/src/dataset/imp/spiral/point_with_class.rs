@@ -1,17 +1,23 @@
 mod one_hot_label;
-use ndarray::{array, Array1, Array2};
+use std::marker::PhantomData;
 
-use crate::dataset::dataset::MiniBatch;
+use crate::{
+    dataset::dataset::MiniBatch,
+    matrix::{matrix_one_dim::MatrixOneDim, matrix_two_dim::MatrixTwoDim},
+};
 
 use self::one_hot_label::OneHotLabel;
 
-pub(super) struct PointWithClass {
+pub(super) struct PointWithClass<M1> {
     x: f32,
     y: f32,
-    class: OneHotLabel,
+    class: OneHotLabel<M1>,
 }
 
-impl PointWithClass {
+impl<M1> PointWithClass<M1>
+where
+    M1: MatrixOneDim,
+{
     pub(super) fn new(x: f32, y: f32, class: usize, class_number: usize) -> Self {
         Self {
             x,
@@ -29,41 +35,26 @@ impl PointWithClass {
     }
 }
 
-impl MiniBatch {
-    pub(super) fn from_points(points: &[PointWithClass]) -> Self {
-        let bundled_points: Vec<Array1<f32>> = points
+impl<M2, M1> MiniBatch<M2, M1>
+where
+    M2: MatrixTwoDim<M1>,
+    M1: MatrixOneDim,
+{
+    pub(super) fn from_points(points: &[PointWithClass<M1>]) -> Self {
+        let bundled_points: Vec<M1> = points
             .iter()
-            .map(|point| array![point.x, point.y])
+            .map(|point| M1::from(vec![point.x, point.y]))
             .collect();
-        let bundled_inputs = bundle_1d_arrays_into_2d_array(bundled_points);
+        let bundled_inputs = M2::from_1d_arrays(bundled_points);
 
-        let bundled_one_hot_labels: Vec<Array1<f32>> =
+        let bundled_one_hot_labels: Vec<M1> =
             points.iter().map(|point| point.class.get_array()).collect();
-        let bundled_one_hot_labels = bundle_1d_arrays_into_2d_array(bundled_one_hot_labels);
+        let bundled_one_hot_labels = M2::from_1d_arrays(bundled_one_hot_labels);
 
         Self {
             bundled_inputs,
             bundled_one_hot_labels,
+            ph: PhantomData,
         }
     }
-}
-
-fn bundle_1d_arrays_into_2d_array<T>(arrays: Vec<Array1<T>>) -> Array2<T>
-where
-    T: Clone,
-{
-    // ソースに１つ以上の１次元配列が含まれることを要請
-    let width = arrays.len();
-    assert!(width > 0);
-
-    // すべての1次元配列の長さが等しいことを要請
-    let height = arrays[0].len();
-    assert!(arrays.iter().all(|array| { array.len() == height }));
-
-    // １次元配列をすべて連結
-    let flattened: Array1<T> = arrays.into_iter().flat_map(|row| row.to_vec()).collect();
-
-    // 連結した１次元配列を２次元配列に変換
-    let output = flattened.into_shape((width, height)).unwrap();
-    output
 }

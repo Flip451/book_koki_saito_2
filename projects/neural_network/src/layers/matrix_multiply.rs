@@ -4,36 +4,47 @@
     ∂L/∂A = X^T.dot(∂L/∂Y)
 */
 
-use ndarray::Array2;
+use std::marker::PhantomData;
+
+use crate::matrix::{matrix_one_dim::MatrixOneDim, matrix_two_dim::MatrixTwoDim};
 
 use super::layer::Layer;
 
-struct MatMul {
-    x: Option<Array2<f32>>,
-    a: Option<Array2<f32>>,
+struct MatMul<M2, M1> {
+    x: Option<M2>,
+    a: Option<M2>,
+    ph: PhantomData<M1>,
 }
 
-struct InputOfMatMulLayer {
-    x: Array2<f32>,
-    a: Array2<f32>,
+struct InputOfMatMulLayer<M2> {
+    x: M2,
+    a: M2,
 }
 
-struct DInputOfMatMulLayer {
-    dx: Array2<f32>,
-    da: Array2<f32>,
+struct DInputOfMatMulLayer<M2> {
+    dx: M2,
+    da: M2,
 }
 
-struct OutputOfMatMulLayer {
-    out: Array2<f32>,
+struct OutputOfMatMulLayer<M2> {
+    out: M2,
 }
 
-impl Layer for MatMul {
-    type Input = InputOfMatMulLayer;
-    type Output = OutputOfMatMulLayer;
-    type DInput = DInputOfMatMulLayer;
+impl<M2, M1> Layer<M2, M1> for MatMul<M2, M1>
+where
+    M2: MatrixTwoDim<M1>,
+    M1: MatrixOneDim,
+{
+    type Input = InputOfMatMulLayer<M2>;
+    type Output = OutputOfMatMulLayer<M2>;
+    type DInput = DInputOfMatMulLayer<M2>;
 
     fn new() -> Self {
-        Self { a: None, x: None }
+        Self {
+            a: None,
+            x: None,
+            ph: PhantomData,
+        }
     }
 
     fn forward(&mut self, input: Self::Input) -> Self::Output {
@@ -73,10 +84,7 @@ mod tests {
             a: array![[1., 2.], [3., 4.], [5., 6.]],
         };
         let output = matmul.forward(input);
-        assert_eq!(
-            output.out,
-            array![[22., 28.], [49., 64.]]
-        );
+        assert_eq!(output.out, array![[22., 28.], [49., 64.]]);
 
         // test backward
         let dout = OutputOfMatMulLayer {
@@ -84,13 +92,7 @@ mod tests {
         };
         let dinput = matmul.backward(dout);
 
-        assert_eq!(
-            dinput.dx,
-            array![[23., 53., 83.], [29., 67., 105.]]
-        );
-        assert_eq!(
-            dinput.da,
-            array![[43., 48.], [59., 66.], [75., 84.]]
-        )
+        assert_eq!(dinput.dx, array![[23., 53., 83.], [29., 67., 105.]]);
+        assert_eq!(dinput.da, array![[43., 48.], [59., 66.], [75., 84.]])
     }
 }

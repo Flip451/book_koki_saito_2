@@ -1,22 +1,29 @@
-use std::{fs::File, io::Read};
-
-use ndarray::{Array1, Array2};
+use std::{fs::File, io::Read, marker::PhantomData};
 
 mod one_hot_label;
-use crate::dataset::dataset::MiniBatch;
+use crate::{
+    dataset::dataset::MiniBatch,
+    matrix::{matrix_one_dim::MatrixOneDim, matrix_two_dim::MatrixTwoDim},
+};
 
 use self::one_hot_label::OneHotLabel;
 
-pub(super) struct ImageWithClass {
-    image: Array1<f32>,
-    class: OneHotLabel,
+pub(super) struct ImageWithClass<M2, M1> {
+    image: M1,
+    class: OneHotLabel<M1>,
+    ph: PhantomData<M2>,
 }
 
-impl ImageWithClass {
+impl<M2, M1> ImageWithClass<M2, M1>
+where
+    M2: MatrixTwoDim<M1>,
+    M1: MatrixOneDim,
+{
     fn new(image_pixels: &[u8], label: u8) -> Self {
+        let image_pixels = image_pixels.iter().map(|x| *x as f32).collect::<Vec<f32>>();
         let class = OneHotLabel::new(label as usize, 10);
-        let image = Array1::from(image_pixels.to_vec()).mapv(|x| x as f32);
-        Self { image, class }
+        let image = M1::from(image_pixels).mapv_into(|x| x as f32);
+        Self { image, class, ph: PhantomData }
     }
 
     pub(super) fn load_from_files(
@@ -73,7 +80,7 @@ impl ImageWithClass {
         let number_of_columns = u32::from_be_bytes(buf) as usize;
         println!("Image Height: {}", number_of_columns);
 
-        let mut images = Vec::<ImageWithClass>::with_capacity(number_of_images as usize);
+        let mut images = Vec::<ImageWithClass<M2, M1>>::with_capacity(number_of_images as usize);
 
         // ラベルの読み出し
         let mut labels: Vec<u8> = Vec::with_capacity(number_of_images);
@@ -109,43 +116,28 @@ impl ImageWithClass {
     }
 }
 
-impl MiniBatch {
-    pub(super) fn from_images(images: &[ImageWithClass]) -> Self {
-        let bundled_points: Vec<Array1<f32>> = images
+impl<M2, M1> MiniBatch<M2, M1>
+where
+    M2: MatrixTwoDim<M1>,
+    M1: MatrixOneDim,
+{
+    pub(super) fn from_images(images: &[ImageWithClass<M2, M1>]) -> Self {
+        let bundled_points: Vec<M1> = images
             .iter()
             .map(|image_with_class| image_with_class.image.clone())
             .collect();
-        let bundled_inputs = bundle_1d_arrays_into_2d_array(bundled_points);
+        let bundled_inputs = M2::from_1d_arrays(bundled_points);
 
-        let bundled_one_hot_labels: Vec<Array1<f32>> = images
+        let bundled_one_hot_labels: Vec<M1> = images
             .iter()
             .map(|image_with_class| image_with_class.class.get_array())
             .collect();
-        let bundled_one_hot_labels = bundle_1d_arrays_into_2d_array(bundled_one_hot_labels);
+        let bundled_one_hot_labels = M2::from_1d_arrays(bundled_one_hot_labels);
 
         Self {
             bundled_inputs,
             bundled_one_hot_labels,
+            ph: PhantomData,
         }
     }
-}
-
-fn bundle_1d_arrays_into_2d_array<T>(arrays: Vec<Array1<T>>) -> Array2<T>
-where
-    T: Clone,
-{
-    // ソースに１つ以上の１次元配列が含まれることを要請
-    let width = arrays.len();
-    assert!(width > 0);
-
-    // すべての1次元配列の長さが等しいことを要請
-    let height = arrays[0].len();
-    assert!(arrays.iter().all(|array| { array.len() == height }));
-
-    // １次元配列をすべて連結
-    let flattened: Array1<T> = arrays.into_iter().flat_map(|row| row.to_vec()).collect();
-
-    // 連結した１次元配列を２次元配列に変換
-    let output = flattened.into_shape((width, height)).unwrap();
-    output
 }
