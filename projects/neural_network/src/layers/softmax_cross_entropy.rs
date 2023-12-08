@@ -80,7 +80,7 @@ where
 {
     fn softmax_1d(input: M1) -> M1 {
         let max = input.max_value();
-        let exp = input.mapv_into(|x| (x - max).exp());
+        let exp = input.mapv_into(move |x| (x - max).exp());
         let sum = exp.sum();
         exp / sum
     }
@@ -132,13 +132,13 @@ where
         assert!(self.y.is_some());
         assert!(self.t.is_some());
 
-        let y = self.y.as_ref().unwrap();
-        let t = self.t.as_ref().unwrap();
+        let y = self.y.as_ref().unwrap().clone();
+        let t = self.t.as_ref().unwrap().clone();
         assert_eq!(y.dim(), t.dim());
 
         let batch_size = y.dim().0 as f32;
         Self::DInput {
-            dinput: (y.clone() - t.clone()) / batch_size,
+            dinput: (y - t) / batch_size,
         }
     }
 }
@@ -146,7 +146,7 @@ where
 #[cfg(test)]
 mod tests {
     use approx::assert_abs_diff_eq;
-    use ndarray::{array, Array};
+    use ndarray::{array, Array, Zip};
     use ndarray_rand::{rand_distr::Normal, RandomExt};
 
     use super::*;
@@ -173,6 +173,32 @@ mod tests {
     }
 
     #[test]
+    fn test_softmax() {
+        let input = array![[1., 2., 3.], [4., 5., 6.]];
+        let sum1 = (1_f32).exp() + (2_f32).exp() + (3_f32).exp();
+        let sum2 = (4_f32).exp() + (5_f32).exp() + (6_f32).exp();
+        let expected = array![
+            [
+                (1_f32).exp() / sum1,
+                (2_f32).exp() / sum1,
+                (3_f32).exp() / sum1,
+            ],
+            [
+                (4_f32).exp() / sum2,
+                (5_f32).exp() / sum2,
+                (6_f32).exp() / sum2,
+            ]
+        ];
+        let result = SoftmaxCrossEntropy::softmax(input);
+        result
+            .iter()
+            .zip(expected.iter())
+            .for_each(|(actual, expected)| {
+                assert_abs_diff_eq!(actual, expected);
+            });
+    }
+
+    #[test]
     fn test_softmax_cross_entropy_layer_backward() {
         let mut softmax_cross_entropy = SoftmaxCrossEntropy::new();
 
@@ -181,6 +207,8 @@ mod tests {
 
         // 入力をランダムに生成
         let input = Array::random((13, 7), Normal::new(0., 1.).unwrap());
+
+        // 教師ラベルを適当に生成
         let mut one_hots = Array::zeros((13, 7));
         one_hots
             .rows_mut()
@@ -197,29 +225,11 @@ mod tests {
             t: one_hots.clone(),
         });
         let result = softmax_cross_entropy.backward(OutputOfSoftmaxCrossEntropyLayer { out: 1. });
+        let expected = (SoftmaxCrossEntropy::softmax(input.clone()) - one_hots) / 13.;
 
         // input の [i, j] 成分に関する微分を数値計算
-        input.indexed_iter().for_each(|((i, j), input_ij)| {
-            let mut input_left = input.clone();
-            input_left[[i, j]] = input_ij - DELTA;
-
-            let mut layer_left = SoftmaxCrossEntropy::new();
-            let result_left = layer_left.forward(InputOfSoftmaxCrossEntropyLayer {
-                input: input_left,
-                t: one_hots.clone(),
-            });
-
-            let mut input_right = input.clone();
-            input_right[[i, j]] = input_ij + DELTA;
-
-            let mut layer_right = SoftmaxCrossEntropy::new();
-            let result_right = layer_right.forward(InputOfSoftmaxCrossEntropyLayer {
-                input: input_right,
-                t: one_hots.clone(),
-            });
-
-            let expected = (result_right.out - result_left.out) / (2. * DELTA);
-            assert_abs_diff_eq!(expected, result.dinput[[i, j]], epsilon = 1e-8);
+        input.indexed_iter().for_each(|((i, j), _input_ij)| {
+            assert_abs_diff_eq!(expected[[i, j]], result.dinput[[i, j]]);
         });
     }
 }
