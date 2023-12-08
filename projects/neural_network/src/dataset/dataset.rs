@@ -1,7 +1,5 @@
 use std::marker::PhantomData;
 
-use ndarray::Array2;
-
 use crate::matrix::{matrix_one_dim::MatrixOneDim, matrix_two_dim::MatrixTwoDim};
 
 pub trait Dataset<M2, M1>: ExactSizeIterator<Item = MiniBatch<M2, M1>>

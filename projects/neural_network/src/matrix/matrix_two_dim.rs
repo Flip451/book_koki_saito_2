@@ -1,6 +1,6 @@
 use std::ops::{Add, Div, Mul, Sub};
 
-use ndarray::{Array1, Array2, ArrayView1, Axis, ShapeBuilder, Zip};
+use ndarray::{Array1, Array2, Axis};
 use ndarray_rand::{rand_distr::Normal, RandomExt};
 
 use super::matrix_one_dim::MatrixOneDim;
@@ -17,7 +17,7 @@ where
     M1: MatrixOneDim,
 {
     fn dot(&self, rhs: &Self) -> Self;
-    fn t(&mut self) -> Self;
+    fn t(&self) -> Self;
     fn sum_axis_zero(&self) -> M1;
     fn sum(&self) -> f32 {
         self.sum_axis_zero().sum()
@@ -44,8 +44,8 @@ impl MatrixTwoDim<Array1<f32>> for Array2<f32> {
         self.dot(rhs)
     }
 
-    fn t(&mut self) -> Self {
-        self.t()
+    fn t(&self) -> Self {
+        self.t().to_owned()
     }
 
     fn sum_axis_zero(&self) -> Array1<f32> {
@@ -71,7 +71,7 @@ impl MatrixTwoDim<Array1<f32>> for Array2<f32> {
         self.dim()
     }
 
-    fn mapv_into_for_each_rows<F>(mut self, mut f: F) -> Self
+    fn mapv_into_for_each_rows<F>(self, mut f: F) -> Self
     where
         F: FnMut(Array1<f32>) -> Array1<f32>,
     {

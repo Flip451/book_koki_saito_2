@@ -1,8 +1,6 @@
 mod one_hot_label;
 use std::marker::PhantomData;
 
-use ndarray::{array, Array1, Array2};
-
 use crate::{
     dataset::dataset::MiniBatch,
     matrix::{matrix_one_dim::MatrixOneDim, matrix_two_dim::MatrixTwoDim},

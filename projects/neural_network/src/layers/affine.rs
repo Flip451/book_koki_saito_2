@@ -7,8 +7,6 @@
 
 use std::marker::PhantomData;
 
-use ndarray::{Array1, Array2, Axis};
-
 use crate::matrix::{matrix_one_dim::MatrixOneDim, matrix_two_dim::MatrixTwoDim};
 
 use super::layer::Layer;
@@ -80,8 +78,8 @@ where
         let a = self.a.as_ref().unwrap();
         let Self::Output { out: dout } = dout;
         Self::DInput {
-            dx: dout.dot(&a.clone().t()).to_owned(),
-            da: x.clone().t().dot(&dout).to_owned(),
+            dx: dout.dot(&a.t()).to_owned(),
+            da: x.t().dot(&dout).to_owned(),
             db: dout.sum_axis_zero().to_owned(),
         }
     }

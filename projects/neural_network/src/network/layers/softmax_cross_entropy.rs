@@ -1,5 +1,3 @@
-use ndarray::Array2;
-
 use crate::{
     layers::{
         layer::Layer,

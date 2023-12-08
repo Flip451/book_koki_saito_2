@@ -1,7 +1,5 @@
 use std::{fs::File, io::Read, marker::PhantomData};
 
-use ndarray::{Array1, Array2};
-
 mod one_hot_label;
 use crate::{
     dataset::dataset::MiniBatch,

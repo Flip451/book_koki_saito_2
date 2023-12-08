@@ -6,8 +6,6 @@
 
 use std::marker::PhantomData;
 
-use ndarray::Array2;
-
 use crate::matrix::{matrix_one_dim::MatrixOneDim, matrix_two_dim::MatrixTwoDim};
 
 use super::layer::Layer;
@@ -42,7 +40,11 @@ where
     type DInput = DInputOfMatMulLayer<M2>;
 
     fn new() -> Self {
-        Self { a: None, x: None, ph: PhantomData }
+        Self {
+            a: None,
+            x: None,
+            ph: PhantomData,
+        }
     }
 
     fn forward(&mut self, input: Self::Input) -> Self::Output {
@@ -61,8 +63,8 @@ where
         let a = self.a.as_ref().unwrap();
         let Self::Output { out: dout } = dout;
         Self::DInput {
-            dx: dout.dot(&a.clone().t()).to_owned(),
-            da: x.clone().t().dot(&dout).to_owned(),
+            dx: dout.dot(&a.t()).to_owned(),
+            da: x.t().dot(&dout).to_owned(),
         }
     }
 }

@@ -1,7 +1,5 @@
 use std::ops::{Add, Mul};
 
-use ndarray::{Array1, Array2};
-
 use crate::{
     layers::{
         affine::{Affine, DInputOfAffineLayer, InputOfAffineLayer, OutputOfAffineLayer},

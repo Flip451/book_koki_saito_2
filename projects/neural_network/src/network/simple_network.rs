@@ -1,6 +1,3 @@
-use ndarray::{Array, Array1, Array2};
-use ndarray_rand::{rand_distr::Normal, RandomExt};
-
 use crate::{
     matrix::{matrix_one_dim::MatrixOneDim, matrix_two_dim::MatrixTwoDim},
     optimizer::optimizer::Optimizer,

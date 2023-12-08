@@ -1,5 +1,3 @@
-use ndarray::Array1;
-
 use crate::matrix::matrix_one_dim::MatrixOneDim;
 
 pub(super) struct OneHotLabel<M1>(M1);

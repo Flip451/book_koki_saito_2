@@ -15,7 +15,7 @@ pub struct SpiralDataset<M2, M1> {
     points: Vec<PointWithClass<M1>>,
     cursor: usize,
     batch_size: usize,
-    phantom: PhantomData<(M2)>,
+    phantom: PhantomData<M2>,
 }
 
 pub struct InitParamsOfSpiralDataset {

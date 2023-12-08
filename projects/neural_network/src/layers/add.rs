@@ -1,7 +1,5 @@
 use std::marker::PhantomData;
 
-use ndarray::Array2;
-
 use crate::matrix::{matrix_two_dim::MatrixTwoDim, matrix_one_dim::MatrixOneDim};
 
 use super::layer::Layer;
@@ -51,7 +49,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use ndarray::{array, Array1};
+    use ndarray::{array, Array1, Array2};
 
     use super::*;
 

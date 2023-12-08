@@ -1,5 +1,3 @@
-use ndarray::Array2;
-
 use crate::optimizer::optimizer::Optimizer;
 
 pub trait Network<M2, M1> {

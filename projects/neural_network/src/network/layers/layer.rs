@@ -1,5 +1,3 @@
-use ndarray::Array2;
-
 use crate::matrix::{matrix_one_dim::MatrixOneDim, matrix_two_dim::MatrixTwoDim};
 
 pub(crate) trait LayerBase {

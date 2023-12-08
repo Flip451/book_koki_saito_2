@@ -15,8 +15,6 @@
 
 use std::marker::PhantomData;
 
-use ndarray::{Array1, Array2, ArrayView1};
-
 use crate::matrix::{matrix_one_dim::MatrixOneDim, matrix_two_dim::MatrixTwoDim};
 
 use super::layer::Layer;
